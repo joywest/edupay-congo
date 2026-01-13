@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <script>
+    // Ce script s'exécute avant que la page ne s'affiche
+    (function() {
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    })();
+ </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | EduPay Congo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+ </head>
+ <body>
+    <body>
+   
+
+    <div class="wrapper">
+    <div class="wrapper">
+       <nav class="sidebar">
+    <div class="brand" id="schoolNameSidebar">Chargement...</div>
+    
+    <ul class="nav-menu">
+        <li class="active"><a href="dashboard.html"><span class="icon">🏠</span> Tableau de bord</a></li>
+        <li><a href="eleves.html"><span class="icon">👥</span> Élèves</a></li>
+        <li><a href="frais.html"><span class="icon">📊</span> Frais Scolaires</a></li>
+        <li><a href="paiements.html"><span class="icon">💸</span> Paiements</a></li>
+        <li><a href="factures.html"><span class="icon">📄</span> Reçus</a></li>
+       <li id="menuDirecteur">
+    <a href="directeur.html" style="background: rgba(255,255,255,0.1); border-radius: 8px;">
+        <span class="icon">📈</span> Rapports Direction
+    </a>
+</li>
+        
+    </ul>
+    <div class="sidebar-footer">
+       <div class="user-box" id="userProfileBtn" onclick="ouvrirMenuParametres()" style="cursor: pointer;">
+    <div class="avatar">AD</div>
+    <span id="userDisplay">Admin</span>
+</div>
+      <button onclick="logout()" class="btn-logout">Déconnexion</button>
+    </div>
+</nav>
+
+        <main class="content">
+       <header class="main-header" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: #fff; border-bottom: 1px solid #eee; gap: 10px;">
+    
+    <div class="archive-selector" style="background: #f0f2f5; padding: 6px 10px; border-radius: 8px; border: 1px solid #ddd; flex-shrink: 0;">
+        <label for="selectAnneeArchive" style="font-size: 10px; color: #555; font-weight: bold; margin-right: 4px;">ANNÉE:</label>
+        <select id="selectAnneeArchive" onchange="changerAnneeConsultation(this.value)" 
+                style="background: transparent; border: none; color: #1a73e8; font-weight: bold; cursor: pointer; outline: none; font-size: 13px;">
+            <option value="2024-2025">24-25</option>
+            <option value="2025-2026" selected>25-26</option>
+            <option value="2026-2027">26-27</option>
+        </select>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 10px; text-align: right;">
+        <div>
+            <h2 style="margin:0; color: #333; font-size: 1rem;">Vue d'ensemble</h2>
+            <div class="date-display" id="currentDate" style="color: #666; font-size: 0.7rem;">-- / -- / ----</div>
+        </div>
+        <button id="btnToggleMobile" onclick="toggleSidebar()" style="background:#1a73e8; color:white; border:none; padding:10px 12px; border-radius:8px; cursor:pointer; font-weight:bold; z-index: 1001;">☰ Menu</button>
+    </div>
+</header>
+
+           <div class="stats-grid">
+    <div class="stat-card blue">
+        <div class="icon-box">👥</div>
+        <div class="stat-info">
+            <h4>Total Élèves</h4>
+            <p id="totalStudents">Chargement...</p>
+        </div>
+    </div>
+    
+
+    <div class="stat-card green">
+        <div class="icon-box">💰</div>
+        <div class="stat-info">
+            <div style="display: flex; align-items: center; gap: 5px;">
+                <h4 style="margin:0;">Recettes Jour</h4>
+                <input type="date" id="statsDateDay" onchange="updateDashboardStats()" 
+                       style="width: 20px; border: none; background: transparent; cursor: pointer; font-size: 10px;">
+            </div>
+            <p id="dayRevenue">0 FCFA</p>
+            <small id="displaySelectedDay" style="font-size: 10px; opacity: 0.8;"></small>
+        </div>
+    </div>
+
+    <div class="stat-card orange">
+        <div class="icon-box">📅</div>
+        <div class="stat-info">
+            <div style="display: flex; align-items: center; gap: 5px;">
+                <h4 style="margin:0;">Recettes Mois</h4>
+                <input type="month" id="statsDateMonth" onchange="updateDashboardStats()" 
+                       style="width: 20px; border: none; background: transparent; cursor: pointer; font-size: 10px;">
+            </div>
+            <p id="monthRevenue">0 FCFA</p>
+            <small id="displaySelectedMonth" style="font-size: 10px; opacity: 0.8;"></small>
+        </div>
+    </div>
+
+    <div class="stat-card red">
+        <div class="icon-box">⚠️</div>
+        <div class="stat-info">
+            <h4>Retards</h4>
+            <p id="totalArrears">0</p>
+        </div>
+    </div>
+</div>
+<button id="btnAjoutPersonnel" onclick="ouvrirModalSecretaire()" class="btn-action" style="display:none; border: 1px dashed #1a73e8; color: #1a73e8; background: #f0f7ff;">
+    <span class="icon">➕</span> Ajouter Personnel
+</button>
+
+            <div class="dashboard-lower">
+                <div class="white-panel table-container">
+   <div class="panel-header">
+    <h3>Derniers Paiements</h3>
+    <button onclick="ouvrirModalHistoriqueComplet()" class="view-all" style="background:none; border:none; color:#4f46e5; cursor:pointer; font-weight:bold; font-size:0.9em; padding:0;">Voir tout</button>
+</div>
+    <div class="table-mobile">
+        <table class="pro-table" id="lastPaymentsTable">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Élève</th>
+                    <th>Montant</th>
+                    <th>Mode</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+                <div class="white-panel actions-panel">
+    <h3>Actions Rapides</h3>
+    <div class="action-buttons">
+        <button onclick="window.location.href='paiements.html'" class="btn-action">
+            <span class="btn-icon">💸</span> Encaisser Frais
+        </button>
+        <button onclick="window.location.href='eleves.html'" class="btn-action">
+            <span class="btn-icon">👤</span> Inscrire Élève
+        </button>
+        
+       <button onclick="ouvrirModalDepense()" class="btn-action" style="background: #fff0f0; border: 1px solid #cc837d; color: #d93025; font-weight: bold;">
+    <span class="btn-icon">📉</span> Sortie de Caisse
+</button>
+       
+    </div>
+</div>
+            </div>
+        </main>
+    </div>
+
+   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    
+    <script src="js/firebase.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/dashboard.js"></script>
+
+    <script>
+        // 1. Gestion du Menu Mobile (Sidebar)
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            sidebar.classList.toggle('active');
+        }
+
+        // Fermer le menu automatiquement si on clique sur un lien (sur mobile)
+        document.querySelectorAll('.nav-menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                if(window.innerWidth <= 992) {
+                    document.querySelector('.sidebar').classList.remove('active');
+                }
+            });
+        });
+
+        // 2. Affichage de la Date actuelle (ton code existant)
+        document.getElementById('currentDate').innerText = new Date().toLocaleDateString('fr-FR', { 
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <footer class="footer-signature">
+    @Dev by <span class="brand-lys">LYS Ingenierie & Digital</span> | 
+    <span class="brand-edupay">EduPay</span> version 1.2.5
+</footer>
+<style>
+    @media (max-width: 768px) {
+        .modal-content-main {
+            flex-direction: column !important;
+            height: 90vh !important;
+            overflow-y: auto !important;
+        }
+        .modal-content-main > div {
+            flex: none !important;
+            width: 100% !important;
+            padding: 20px !important; /* Marges plus petites sur mobile */
+        }
+    }
+</style>
+
+<div id="modalDepense" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15, 23, 42, 0.9); z-index:9999; align-items:center; justify-content:center; backdrop-filter: blur(5px); padding: 10px;">
+    
+    <div class="modal-content-main" style="background:white; width:95%; max-width:1000px; border-radius:24px; display:flex; height: 80vh; overflow:hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);">
+        
+        <div style="flex:1; padding:40px; background:#fff;">
+            <h2 style="color:#1e293b; margin-bottom:5px;">Gestion des Sorties</h2>
+            <p style="color:#64748b; font-size:0.9em; margin-bottom:30px;">Enregistrez chaque franc qui sort de la caisse.</p>
+            
+            <div style="background: linear-gradient(135deg, #1e293b, #334155); padding:20px; border-radius:16px; color:white; margin-bottom:25px;">
+                <span style="font-size:0.8em; opacity:0.8;">DISPONIBILITÉ RÉELLE</span>
+                <div id="soldeInfo" style="font-size:2em; font-weight:bold; letter-spacing:-1px;">--- FCFA</div>
+            </div>
+
+            <div style="display:grid; gap:15px;">
+                <div>
+                    <label style="font-size:0.85em; font-weight:bold; color:#475569;">TYPE DE DÉPENSE</label>
+                    <select id="catDepense" style="width:100%; padding:12px; border-radius:10px; border:1px solid #cbd5e1; margin-top:5px; background:#f8fafc;">
+                        <option value="Salaire">👨‍🏫 Salaire Enseignant / Personnel</option>
+                        <option value="Fourniture">📦 Fournitures & Matériel</option>
+                        <option value="Charge">🔌 Charges (SNE, SEE, Loyer)</option>
+                        <option value="Maintenance">🛠 Travaux & Réparations</option>
+                        <option value="Divers">✨ Autres dépenses</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label style="font-size:0.85em; font-weight:bold; color:#475569;">BÉNÉFICIAIRE OU MOTIF</label>
+                    <div id="conteneurMotif" style="margin-top:5px;">
+                        <input type="text" id="motif" placeholder="Ex: Salaire M. Moussa (Janvier)" style="width:100%; padding:12px; border-radius:10px; border:1px solid #cbd5e1;">
+                    </div>
+                </div>
+
+                <div>
+                    <label style="font-size:0.85em; font-weight:bold; color:#475569;">MONTANT (FCFA)</label>
+                    <input type="number" id="montant" placeholder="0" style="width:100%; padding:15px; border-radius:10px; border:2px solid #e2e8f0; margin-top:5px; font-size:1.2em; font-weight:bold; color:#d93025;">
+                </div>
+
+                <div style="display:flex; gap:10px; margin-top:10px;">
+                    <button onclick="document.getElementById('modalDepense').style.display='none'" style="flex:1; padding:15px; border-radius:12px; border:none; background:#f1f5f9; color:#475569; font-weight:bold; cursor:pointer;">Annuler</button>
+                    <button onclick="validerDepense()" style="flex:2; padding:15px; border-radius:12px; border:none; background:#d93025; color:white; font-weight:bold; cursor:pointer; box-shadow: 0 4px 6px -1px rgba(217, 48, 37, 0.4);">Confirmer le paiement</button>
+                </div>
+            </div>
+        </div>
+
+        <div style="flex:1.2; padding:40px; background:#f8fafc; display:flex; flex-direction:column; border-left: 1px solid #e2e8f0;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h3 style="color:#1e293b; margin:0;">Dernières opérations</h3>
+                <button onclick="ouvrirModalAjoutProf()" style="background:#10b981; color:white; border:none; padding:8px 15px; border-radius:10px; cursor:pointer; font-weight:bold; font-size:0.8em; display:flex; align-items:center; gap:5px; box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.2);">
+                    <span style="font-size:1.2em;">+</span> Ajouter un prof
+                </button>
+            </div>
+            
+            <div id="statsDepenses" style="display:flex; gap:10px; margin-bottom:20px;">
+                <div style="flex:1; background:white; padding:10px; border-radius:10px; border:1px solid #e2e8f0; font-size:0.8em;">
+                    <span style="color:#64748b;">Salaires versés</span><br>
+                    <strong id="totalSalairesModal" style="color:#1e293b;">0 FCFA</strong>
+                </div>
+                <div style="flex:1; background:white; padding:10px; border-radius:10px; border:1px solid #e2e8f0; font-size:0.8em;">
+                    <span style="color:#64748b;">Autres frais</span><br>
+                    <strong id="totalAutresModal" style="color:#1e293b;">0 FCFA</strong>
+                </div>
+            </div>
+
+            <button onclick="ouvrirListeProfesseurs()" style="width:100%; background:#4f46e5; color:white; border:none; padding:12px; border-radius:12px; font-weight:bold; cursor:pointer; margin-bottom:20px; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2);">
+                📋 Gérer le Pointage & Salaires
+            </button>
+
+            <div id="historiqueDepensesModal" style="flex:1; overflow-y:auto; padding-right:10px;">
+                </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalAddProf" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:10000; justify-content:center; align-items:center; backdrop-filter: blur(4px);">
+    <div style="background:white; width:90%; max-width:400px; border-radius:20px; padding:30px; box-shadow:0 20px 25px -5px rgba(0,0,0,0.1);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h3 style="margin:0; color:#1e293b;">👤 Nouveau Professeur</h3>
+            <button onclick="document.getElementById('modalAddProf').style.display='none'" style="background:none; border:none; font-size:24px; cursor:pointer; color:#64748b;">&times;</button>
+        </div>
+
+        <div style="display:grid; gap:15px;">
+            <div>
+                <label style="display:block; font-size:0.75em; font-weight:bold; color:#64748b; margin-bottom:5px;">NOM COMPLET</label>
+                <input type="text" id="profNom" placeholder="Ex: M. Moussa" style="width:100%; padding:12px; border:1px solid #e2e8f0; border-radius:10px;">
+            </div>
+            <div>
+                <label style="display:block; font-size:0.75em; font-weight:bold; color:#64748b; margin-bottom:5px;">MATIÈRE</label>
+                <input type="text" id="profMatiere" placeholder="Ex: Mathématiques" style="width:100%; padding:12px; border:1px solid #e2e8f0; border-radius:10px;">
+            </div>
+            <div>
+                <label style="display:block; font-size:0.75em; font-weight:bold; color:#64748b; margin-bottom:5px;">SALAIRE JOURNALIER (FCFA)</label>
+                <input type="number" id="profSalaireJour" placeholder="5000" style="width:100%; padding:12px; border:1px solid #e2e8f0; border-radius:10px; font-weight:bold; color:#10b981; font-size:1.1em;">
+            </div>
+            <button onclick="enregistrerProfesseur()" style="background:#4f46e5; color:white; border:none; padding:15px; border-radius:12px; font-weight:bold; cursor:pointer; margin-top:10px; box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.3);">
+                ✅ Enregistrer le professeur
+            </button>
+        </div>
+    </div>
+</div>
+<div id="modalListeProfs" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; justify-content:center; align-items:center; backdrop-filter: blur(5px);">
+    <div style="background:white; width:95%; max-width:500px; border-radius:20px; padding:25px; max-height:80vh; overflow-y:auto;">
+        
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid #f1f5f9; padding-bottom:15px;">
+            <h3 style="color:#1e293b; margin:0;">👥 Personnel Enseignant</h3>
+            <button onclick="document.getElementById('modalListeProfs').style.display='none'" style="background:#f1f5f9; border:none; width:35px; height:35px; border-radius:50%; cursor:pointer;">&times;</button>
+        </div>
+
+        <input type="text" id="searchProf" placeholder="Rechercher un professeur..." style="width:100%; padding:10px; border-radius:10px; border:1px solid #e2e8f0; margin-bottom:15px;">
+        
+        <div id="contenuListeProfs">
+            <p style="text-align:center; color:gray;">Chargement des professeurs...</p>
+        </div>
+    </div>
+</div>
+<style>
+    @media (max-width: 480px) {
+        .modal-fiche-container {
+            width: 95% !important;
+            max-height: 95vh !important;
+            overflow-y: auto !important;
+        }
+    }
+</style>
+
+<div id="modalFicheProf" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:10001; justify-content:center; align-items:center; backdrop-filter: blur(8px); padding: 10px;">
+    
+    <div class="modal-fiche-container" style="background:white; width:95%; max-width:450px; border-radius:25px; padding:0; overflow:hidden; position:relative; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3);">
+        
+        <div style="background:#4f46e5; color:white; padding:25px; text-align:center;">
+            <button onclick="document.getElementById('modalFicheProf').style.display='none'" style="position:absolute; top:15px; right:15px; background:rgba(255,255,255,0.2); border:none; color:white; width:30px; height:30px; border-radius:50%; cursor:pointer;">&times;</button>
+            <div style="font-size:3em; margin-bottom:10px;">👤</div>
+            <h2 id="ficheNomProf" style="margin:0; font-size:1.4em;">Nom du Prof</h2>
+            <p id="ficheMatiereProf" style="margin:5px 0 0; opacity:0.8;">Matière</p>
+        </div>
+
+        <div style="padding:20px;">
+            <div style="background:#f8fafc; border-radius:15px; padding:15px; margin-bottom:20px; border:1px solid #e2e8f0;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <span style="font-size:0.8em; color:#64748b; font-weight:bold;">POINTAGE AUJOURD'HUI</span>
+                        <div style="font-weight:bold; color:#1e293b;" id="dateAujourdhui">Date du jour</div>
+                    </div>
+                    <button id="btnPointer" onclick="pointerPresence()" style="background:#10b981; color:white; border:none; padding:10px 20px; border-radius:10px; font-weight:bold; cursor:pointer;">✅ PRÉSENT</button>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label style="font-size: 0.75em; font-weight: bold; color: #64748b; margin-bottom: 5px; display: block;">CONSULTER UN MOIS PRÉCIS :</label>
+                <select id="selectMoisFiche" onchange="changerMoisFiche()" style="width:100%; padding:12px; border-radius:12px; border:1px solid #e2e8f0; background:#f1f5f9; font-weight:bold; color:#4f46e5; cursor:pointer; outline:none;">
+                    <option value="1">Janvier</option>
+                    <option value="2">Février</option>
+                    <option value="3">Mars</option>
+                    <option value="4">Avril</option>
+                    <option value="5">Mai</option>
+                    <option value="6">Juin</option>
+                    <option value="7">Juillet</option>
+                    <option value="8">Août</option>
+                    <option value="9">Septembre</option>
+                    <option value="10">Octobre</option>
+                    <option value="11">Novembre</option>
+                    <option value="12">Décembre</option>
+                </select>
+            </div>
+
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:20px;">
+                <div style="background:#fff7ed; padding:15px; border-radius:15px; border:1px solid #ffedd5; text-align:center;">
+                    <small style="color:#9a3412; font-weight:bold; display:block; margin-bottom:5px;">JOURS POINTÉS</small>
+                    <div id="ficheJoursCount" style="font-size:1.5em; font-weight:bold; color:#c2410c;">0</div>
+                </div>
+                <div style="background:#f0fdf4; padding:15px; border-radius:15px; border:1px solid #dcfce7; text-align:center;">
+                    <small style="color:#166534; font-weight:bold; display:block; margin-bottom:5px;">TOTAL À PAYER</small>
+                    <div id="ficheTotalDu" style="font-size:1.5em; font-weight:bold; color:#15803d;">0 FCFA</div>
+                </div>
+            </div>
+
+            <button onclick="preparerPaiementDepuisFiche()" style="width:100%; background:#1e293b; color:white; border:none; padding:15px; border-radius:12px; font-weight:bold; cursor:pointer;">💸 Enregistrer un paiement</button>
+        </div>
+    </div>
+</div>
+<div id="modalHistoriquePaiements" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15, 23, 42, 0.9); z-index:10002; align-items:center; justify-content:center; backdrop-filter: blur(5px); padding: 10px;">
+    <div class="modal-content-main" style="background:white; width:95%; max-width:900px; border-radius:24px; display:flex; flex-direction:column; height: 85vh; overflow:hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);">
+        
+        <div style="padding:20px; border-bottom:1px solid #f1f5f9; display:flex; justify-content:space-between; align-items:center; background:#fff;">
+            <div>
+                <h3 style="margin:0; color:#1e293b;">📋 Historique Global des Paiements</h3>
+                <p style="margin:2px 0 0; color:#64748b; font-size:0.8em;">Consulter l'intégralité des transactions élèves</p>
+            </div>
+            <button onclick="document.getElementById('modalHistoriquePaiements').style.display='none'" style="background:#f1f5f9; border:none; width:35px; height:35px; border-radius:50%; cursor:pointer; font-size:20px; color:#64748b;">&times;</button>
+        </div>
+
+        <div style="padding:15px; background:#f8fafc; border-bottom:1px solid #f1f5f9;">
+            <input type="text" id="searchPaiementHistorique" placeholder="🔍 Rechercher un élève ou une classe..." onkeyup="filtrerTableauHistorique()" style="width:100%; padding:12px; border-radius:12px; border:1px solid #e2e8f0; font-size:1em; outline:none; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">
+        </div>
+
+        <div style="flex:1; overflow-y:auto; padding:10px;">
+            <div class="table-mobile">
+                <table class="pro-table" id="tableHistoriqueComplet" style="width:100%; border-collapse: collapse;">
+                    <thead style="position: sticky; top: 0; background: #f8fafc; z-index: 10;">
+    <tr>
+        <th style="padding:12px; text-align:left; color:#64748b; font-size:0.85em;">DATE</th>
+        <th style="padding:12px; text-align:left; color:#64748b; font-size:0.85em;">ÉLÈVE</th>
+        <th style="padding:12px; text-align:left; color:#64748b; font-size:0.85em;">CLASSE</th>
+        <th style="padding:12px; text-align:left; color:#64748b; font-size:0.85em;">MOTIF</th> <th style="padding:12px; text-align:left; color:#64748b; font-size:0.85em;">MONTANT</th>
+        <th style="padding:12px; text-align:left; color:#64748b; font-size:0.85em;">MODE</th>
+    </tr>
+</thead>
+                    <tbody id="bodyHistoriqueComplet"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div style="padding:15px; border-top:1px solid #f1f5f9; text-align:right; background:#fff; display: flex; justify-content: flex-end; gap: 10px;">
+            <button onclick="imprimerHistoriqueComplet()" style="padding:12px 25px; border-radius:12px; border:none; background:#16a34a; color:white; font-weight:bold; cursor:pointer;">
+                🖨️ Imprimer la liste
+            </button>
+            <button onclick="document.getElementById('modalHistoriquePaiements').style.display='none'" style="padding:12px 25px; border-radius:12px; border:none; background:#1e293b; color:white; font-weight:bold; cursor:pointer;">
+                Fermer
+            </button>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
+    
