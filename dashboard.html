@@ -208,9 +208,9 @@
 
 <div id="modalDepense" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15, 23, 42, 0.9); z-index:9999; align-items:center; justify-content:center; backdrop-filter: blur(5px); padding: 10px;">
     
-    <div class="modal-content-main" style="background:white; width:95%; max-width:1000px; border-radius:24px; display:flex; max-height: 90vh; overflow-y:auto; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);">
+    <div class="modal-content-main" style="background:white; width:95%; max-width:1000px; border-radius:24px; display:flex; flex-wrap: wrap; min-height: 80vh; max-height: 95vh; overflow-y:auto; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);">
         
-        <div style="flex:1; padding:40px; background:#fff;">
+        <div style="flex:1; min-width:320px; padding:40px; background:#fff;">
             <h2 style="color:#1e293b; margin-bottom:5px;">Gestion des Sorties</h2>
             <p style="color:#64748b; font-size:0.9em; margin-bottom:30px;">Enregistrez chaque franc qui sort de la caisse.</p>
             
@@ -243,14 +243,14 @@
                     <input type="number" id="montant" placeholder="0" style="width:100%; padding:15px; border-radius:10px; border:2px solid #e2e8f0; margin-top:5px; font-size:1.2em; font-weight:bold; color:#d93025;">
                 </div>
 
-                <div style="display:flex; gap:10px; margin-top:10px; padding-bottom: 10px;">
+                <div style="display:flex; gap:10px; margin-top:10px; padding-bottom:20px;">
                     <button onclick="document.getElementById('modalDepense').style.display='none'" style="flex:1; padding:15px; border-radius:12px; border:none; background:#f1f5f9; color:#475569; font-weight:bold; cursor:pointer;">Annuler</button>
                     <button onclick="validerDepense()" style="flex:2; padding:15px; border-radius:12px; border:none; background:#d93025; color:white; font-weight:bold; cursor:pointer; box-shadow: 0 4px 6px -1px rgba(217, 48, 37, 0.4);">Confirmer le paiement</button>
                 </div>
             </div>
         </div>
 
-        <div style="flex:1.2; padding:40px; background:#f8fafc; display:flex; flex-direction:column; border-left: 1px solid #e2e8f0;">
+        <div style="flex:1.2; min-width:320px; padding:40px; background:#f8fafc; display:flex; flex-direction:column; border-left: 1px solid #e2e8f0;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
                 <h3 style="color:#1e293b; margin:0;">Dernières opérations</h3>
                 <button onclick="ouvrirModalAjoutProf()" style="background:#10b981; color:white; border:none; padding:8px 15px; border-radius:10px; cursor:pointer; font-weight:bold; font-size:0.8em; display:flex; align-items:center; gap:5px; box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.2);">
@@ -273,7 +273,7 @@
                 📋 Gérer le Pointage & Salaires
             </button>
 
-            <div id="historiqueDepensesModal" style="flex:1; overflow-y:auto; padding-right:10px;">
+            <div id="historiqueDepensesModal" style="flex:1; overflow-y:auto; padding-right:10px; min-height:200px;">
                 </div>
         </div>
     </div>
@@ -432,3 +432,4 @@
 </html>
 
     
+
