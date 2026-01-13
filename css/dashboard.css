@@ -199,3 +199,14 @@ body {
     text-decoration: underline;
 }
 
+/* --- FIX PRIORITÉ SWEETALERT --- */
+.swal2-container {
+    z-index: 99999 !important; /* Priorité absolue sur la sidebar */
+}
+
+/* Sur mobile, on s'assure que la sidebar ne cache pas le fond sombre de la modale */
+@media screen and (max-width: 992px) {
+    .sidebar.active {
+        z-index: 1000; /* On baisse un peu la sidebar quand une modale est là */
+    }
+}
