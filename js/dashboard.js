@@ -598,8 +598,7 @@ async function ouvrirModalDepense() {
                     const dateD = new Date(d.date);
                     const moisD = dateD.getMonth() + 1;
                     const anneeD = dateD.getFullYear();
-
-                    if (moisD === moisActuel && anneeD === anneeActuelle) {
+                  if (moisD === moisActuel && anneeD === anneeActuelle) {
                         if (d.categorie === "Salaire") {
                             sumSalaires += m;
                         } else {
@@ -821,7 +820,6 @@ if (selectCat) {
         }
     });
 }
-
 async function ouvrirFicheProf(id) {
     profSelectionneId = id;
     const schoolID = localStorage.getItem('schoolID') || 'lyce_excellence';
@@ -1000,7 +998,7 @@ function ouvrirModalHistoriqueComplet() {
                     <td style="padding:12px; color:#10b981; font-weight:900;">${montant.toLocaleString('fr-FR')} FCFA</td>
                     <td style="padding:12px;"><span style="font-size:0.8em; background:#f1f5f9; padding:4px 10px; border-radius:20px; color:#475569;">${mode}</span></td>
                 </tr>`;
-            });
+        });
             tbody.innerHTML = rows;
         } else {
             tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:40px; color:#64748b;">Aucune transaction trouvée pour l'année ${yearToLoad}.</td></tr>`;
