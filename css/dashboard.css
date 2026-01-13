@@ -23,6 +23,7 @@
 
 * {
     box-sizing: border-box;
+    max-width: 100%;
     margin: 0; 
     padding: 0;
 }
@@ -209,29 +210,3 @@ body {
         z-index: 1000; /* On baisse un peu la sidebar quand une modale est là */
     }
 }
-
-/* Force l'affichage des boutons dans le modal de dépense */
-#modalDepense .modal-content-main {
-    display: flex !important;
-    flex-direction: column !important;
-    max-height: 85vh !important; /* Limite la hauteur à 85% de l'écran */
-    overflow: hidden !important; /* Cache ce qui dépasse du cadre principal */
-}
-
-/* Crée une zone de défilement pour le formulaire et l'historique */
-#modalDepense .modal-body {
-    flex-grow: 1;
-    overflow-y: auto !important; /* Permet de défiler ici seulement */
-    padding-bottom: 20px;
-}
-
-/* Fixe les boutons en bas pour qu'ils soient TOUJOURS visibles */
-#modalDepense .modal-footer {
-    padding-top: 15px;
-    border-top: 1px solid #eee;
-    background: white;
-    display: flex;
-    gap: 10px;
-    margin-top: auto; /* Pousse les boutons vers le bas */
-}
-
