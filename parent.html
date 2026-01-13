@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <link rel="manifest" href="manifest.json">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#1a73e8">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portail Parent - Consultation</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+     body { 
+        font-family: 'Segoe UI', sans-serif; 
+        background: linear-gradient(135deg, #e0f2f7 0%, #d1e5ed 100%); 
+        background-size: 200% 200%; 
+        animation: gradientShift 10s ease infinite alternate; 
+
+        display: flex; 
+        justify-content: center; 
+        align-items: center;     
+        min-height: 100vh;       
+        margin: 0;               
+        padding: 20px; 
+        box-sizing: border-box;
+        overflow-x: hidden; 
+    }
+
+    @keyframes gradientShift {
+        0% { background-position: 0% 50%; }
+        100% { background-position: 100% 50%; }
+    }
+
+    .main-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        max-width: 500px;
+    }
+
+    .card { 
+        background: white; 
+        width: 100%; 
+        padding: 30px; 
+        border-radius: 20px; 
+        box-shadow: 0 15px 40px rgba(0,0,0,0.1); 
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        box-sizing: border-box;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+    }
+
+    .header { text-align: center; margin-bottom: 30px; }
+    .header h1 { color: #1e40af; margin-bottom: 5px; text-transform: uppercase; font-size: 1.4rem; }
+    .search-box { display: flex; gap: 10px; margin-bottom: 20px; }
+    
+    input { 
+        flex: 1; 
+        padding: 12px; 
+        border: 2px solid #e2e8f0; 
+        border-radius: 10px; 
+        outline: none; 
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    input:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+
+    button { 
+        background: #3b82f6; 
+        color: white; 
+        border: none; 
+        padding: 12px 20px; 
+        border-radius: 10px; 
+        cursor: pointer; 
+        transition: background 0.3s ease, transform 0.2s ease;
+    }
+    button:hover {
+        background: #2563eb;
+        transform: translateY(-2px);
+    }
+
+    .resultat { 
+        display: none; 
+        margin-top: 20px; 
+        border-top: 2px solid #f1f5f9; 
+        padding-top: 20px; 
+        animation: fadeIn 0.5s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .student-name { color: #1e40af; font-size: 1.2rem; font-weight: bold; text-align: center; margin-bottom: 15px; }
+    .info-row { display: flex; justify-content: space-between; margin-bottom: 12px; padding-bottom: 5px; border-bottom: 1px dashed #e2e8f0; }
+    .label { color: #64748b; }
+    .value { color: #1e293b; font-weight: bold; }
+    .detail-box { background: #f8fafc; border-radius: 10px; padding: 15px; margin-top: 15px; }
+    .badge-reste { background: #dc2626; color: white; padding: 15px; border-radius: 12px; text-align: center; font-size: 1.3rem; margin-top: 20px; }
+    .badge-reste span { font-size: 0.8rem; display: block; opacity: 0.9; }
+    
+    .back-btn {
+        width: 100%;
+        margin-top: 20px;
+        background: #64748b;
+    }
+    .back-btn:hover {
+        background: #475569;
+    }
+
+    .footer-signature {
+        margin-top: 20px;
+        text-align: center;
+        font-size: 0.85rem;
+        color: #000000;
+        width: 100%;
+    }
+
+    .footer-signature i {
+        color: #a39b9b;
+        margin-right: 5px;
+    }
+
+    .footer-signature strong {
+        color: #d3d4d6;
+    
+    }
+    body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+    
+    /* Configuration de l'image en plein écran */
+    background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
+                url('images/ecrant1.jpg');
+    background-size: cover;       /* L'image couvre tout l'espace */
+    background-position: center;  /* L'image est bien centrée */
+    background-attachment: fixed; /* L'image ne bouge pas quand on scroll */
+    background-repeat: no-repeat;
+    
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+.skeleton {
+    background: #eee;
+    background: linear-gradient(110deg, #ececec 8%, #f5f5f5 18%, #ececec 33%);
+    border-radius: 8px;
+    background-size: 200% 100%;
+    animation: 1.5s shine linear infinite;
+    height: 60px;
+    margin-bottom: 10px;
+}
+
+@keyframes shine {
+    to { background-position-x: -200%; }
+}
+    </style>
+</head>
+<body>
+
+<div class="main-container">
+    <div class="card">
+        <div class="header">
+            <h1 id="schoolTitle">Chargement...</h1>
+            <p>Situation financière de l'élève</p>
+        </div>
+
+        <div class="search-box">
+            <input type="text" id="matInput" placeholder="Matricule (ex: ELV-...)">
+            <button class="search-btn" onclick="chercherEleve()"><i class="fas fa-search"></i></button>
+        </div>
+
+        <div id="resultat" class="resultat">
+            <div id="alerteAbsence" style="display:none; margin-bottom: 20px; padding: 15px; background-color: #fef2f2; border: 2px solid #ef4444; border-radius: 12px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <i class="fas fa-exclamation-circle" style="color: #dc2626; font-size: 1.5rem;"></i>
+                    <div>
+                        <h4 style="margin: 0; color: #991b1b; font-size: 0.9rem;">ALERTE ABSENCE</h4>
+                        <p style="margin: 2px 0 0; color: #b91c1c; font-size: 0.85rem;">
+                            L'élève est marqué <strong>ABSENT</strong> ce jour à <span id="heureAbsence"></span>.
+                        </p>
+                      <button id="btnOuvrirJustif" onclick="ouvrirChatDirection()" style="margin-top:10px; background:#dc2626; color:white; border:1px solid white; padding:8px 12px; border-radius:8px; font-size:0.8rem; cursor:pointer; font-weight:bold;">
+    <i class="fas fa-paper-plane"></i> Justifier l'absence
+</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="resNom" class="student-name"></div>
+            
+            <div class="info-row"><span class="label">Classe :</span> <span class="value" id="resClasse"></span></div>
+            <div class="info-row"><span class="label">Année Scolaire :</span> <span class="value" id="resAnnee"></span></div>
+            <div class="info-row"><span class="label">Parent :</span> <span class="value" id="resParent"></span></div>
+            
+            <div class="detail-box">
+                <div class="info-row"><span class="label">Déjà payé :</span> <span class="value" id="resPaye" style="color: #059669;"></span></div>
+                <div class="info-row"><span class="label">Frais Examen :</span> <span class="value" id="resExamen"></span></div>
+                <div class="info-row"><span class="label">Uniforme :</span> <span class="value" id="resUniforme"></span></div>
+                <div class="info-row"><span class="label">Inscription :</span> <span class="value" id="resInscrip"></span></div>
+            </div>
+
+            <div class="badge-reste">
+                <span id="labelReste">RESTE À PAYER</span>
+                <strong id="resReste">0 F</strong>
+            </div>
+
+            <button class="back-btn" onclick="reinitialiser()">
+                <i class="fas fa-arrow-left"></i> Nouvelle recherche
+            </button>
+        </div>
+    </div>
+
+    <div class="footer-signature">
+        <i class="fas fa-shield-alt"></i> Sécurisé par <strong>EduPay Congo</strong>
+    </div>
+</div>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyCUtkYNEItc-sI9_IIyfzxVNnpN_gj7UEA",
+        authDomain: "gestion-paiements-ecole.firebaseapp.com",
+        databaseURL: "https://gestion-paiements-ecole-default-rtdb.firebaseio.com",
+        projectId: "gestion-paiements-ecole",
+        storageBucket: "gestion-paiements-ecole.firebasestorage.app",
+        messagingSenderId: "1007469956928",
+        appId: "1:1007469956928:web:ca9b64e500976dc39634a5"
+    };
+
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    window.addEventListener('load', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const matDistant = urlParams.get('mat');
+    
+    if (matDistant) {
+        // On remplit le champ de texte
+        document.getElementById('matInput').value = matDistant;
+        
+        // On attend 1.5 seconde pour laisser à Firebase le temps de se connecter
+        setTimeout(() => {
+            console.log("Recherche automatique pour :", matDistant);
+            chercherEleve();
+        }, 1500);
+    }
+});
+
+    const urlParams = new URLSearchParams(window.location.search);
+    let schoolId = urlParams.get('id') || localStorage.getItem('lastSchoolId');
+
+    if (schoolId) {
+        localStorage.setItem('lastSchoolId', schoolId);
+        db.ref(`schools/${schoolId}/nom_ecole`).once('value').then(s => {
+            document.getElementById('schoolTitle').innerText = s.val() || schoolId.toUpperCase();
+        });
+    }
+
+    function reinitialiser() {
+        document.getElementById('resultat').style.display = 'none';
+        document.getElementById('matInput').value = '';
+    }
+function chercherEleve() {
+    const mat = document.getElementById('matInput').value.trim();
+    if (!mat || !schoolId) {
+        alert("Veuillez entrer un matricule valide.");
+        return;
+    }
+
+    // On vide les anciens textes pour être sûr qu'on ne voit pas les restes d'une ancienne recherche
+    document.getElementById('resultat').style.display = 'none';
+
+    db.ref(`schools/${schoolId}/2025-2026/students/${mat}`).once('value').then(snap => {
+        const data = snap.val();
+        
+        if (data) {
+            // 1. On remplit les informations de base
+            document.getElementById('resNom').innerText = data.nom || "N/A";
+            document.getElementById('resClasse').innerText = data.classe || "CP1";
+            document.getElementById('resAnnee').innerText = data.annee || "2025-2026";
+            document.getElementById('resParent').innerText = data.parent || "Non renseigné";
+            
+            // 2. TECHNIQUE DE RÉCUPÉRATION (On vérifie la racine ET le dossier detailsFinanciers)
+            const fin = data.detailsFinanciers || {};
+            
+            const payeScol = parseFloat(data.scolaritePayee) || parseFloat(fin.scolaritePayee) || 0;
+            const inscr = parseFloat(data.inscription) || parseFloat(fin.inscription) || 0;
+            const reste = parseFloat(data.reste) || parseFloat(fin.reste) || 0;
+            const exam = parseFloat(data.examen) || parseFloat(fin.examen) || 0;
+            const uni = parseFloat(data.uniforme) || parseFloat(fin.uniforme) || 0;
+
+            // 3. AFFICHAGE DES CHIFFRES
+            document.getElementById('resPaye').innerText = payeScol + " F";
+            document.getElementById('resInscrip').innerText = inscr + " F";
+            document.getElementById('resExamen').innerText = exam + " F";
+            document.getElementById('resUniforme').innerText = uni + " F";
+            document.getElementById('resReste').innerText = reste + " F";
+
+            // 4. MISE À JOUR DU BADGE
+            const badge = document.querySelector('.badge-reste');
+            const label = document.getElementById('labelReste');
+            if (badge) {
+                if (reste <= 0) {
+                    badge.style.background = "#059669";
+                    if(label) label.innerText = "SCOLARITÉ SOLDÉE ✅";
+                } else {
+                    badge.style.background = "#dc2626";
+                    if(label) label.innerText = "RESTE À PAYER";
+                }
+            }
+
+            // 5. ON AFFICHE LE RÉSULTAT
+            document.getElementById('resultat').style.display = 'block';
+            
+            // 6. VÉRIFICATION ABSENCE (Sécurisé)
+            if (typeof verifierAbsence === "function") {
+                verifierAbsence(mat);
+            }
+
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Oups...',
+                text: 'Matricule ' + mat + ' non trouvé dans la base.',
+                confirmButtonColor: '#1e40af'
+            });
+        }
+    }).catch(err => {
+        console.error("Erreur Firebase :", err);
+        alert("Erreur lors de la recherche. Vérifiez votre connexion.");
+    });
+}
+  
+    function verifierAbsence(mat) {
+        const today = new Date().toISOString().split('T')[0];
+        const classe = document.getElementById('resClasse').innerText;
+        const alerteBox = document.getElementById('alerteAbsence');
+        const heureTxt = document.getElementById('heureAbsence');
+        const btnJustif = document.getElementById('btnOuvrirJustif');
+        const cheminClasse = `schools/${schoolId}/presences/${today}/${classe}`;
+        
+        db.ref(cheminClasse).on('value', classSnap => {
+            if (!classSnap.exists()) {
+                alerteBox.style.display = 'none';
+                return;
+            }
+            const studentSnap = classSnap.child(mat);
+            if (studentSnap.exists() && studentSnap.val().statut === "Absent") {
+                alerteBox.style.display = 'block';
+                heureTxt.innerText = studentSnap.val().heure || "--:--";
+            } else {
+                alerteBox.style.display = 'none';
+            }
+        });
+    }
+
+    function ouvrirChatDirection() {
+        document.getElementById('modalJustification').style.display = 'flex';
+    }
+
+    function fermerChat() {
+        document.getElementById('modalJustification').style.display = 'none';
+        document.getElementById('raisonAbsence').value = "";
+    }
+
+    function envoyerJustification() {
+        const message = document.getElementById('raisonAbsence').value.trim();
+        const mat = document.getElementById('matInput').value;
+        const nom = document.getElementById('resNom').innerText;
+        const classe = document.getElementById('resClasse').innerText;
+
+        if (!message) {
+            alert("Veuillez saisir une explication.");
+            return;
+        }
+
+        const dataMessage = {
+            expediteur: nom,
+            matricule: mat,
+            classe: classe,
+            objet: "Justification d'absence",
+            message: message,
+            date: new Date().toLocaleString('fr-FR'),
+            statut: "non_lu",
+            timestamp: firebase.database.ServerValue.TIMESTAMP
+        };
+
+        db.ref(`schools/${schoolId}/messages_recus`).push(dataMessage).then(() => {
+            Swal.fire({ title: 'Message Envoyé !', icon: 'success', timer: 3000 });
+            fermerChat();
+        });
+    }
+
+    // --- GESTION PWA SÉCURISÉE ---
+   // --- GESTION PWA NETTOYÉE ---
+let deferredPrompt;
+const installBanner = document.getElementById('pwa-install-banner');
+const installBtn = document.getElementById('btn-pwa-install');
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    // On empêche la bannière automatique du navigateur
+    e.preventDefault();
+    // On garde l'événement pour plus tard
+    deferredPrompt = e;
+    // On montre NOTRE propre bannière personnalisée
+    if (installBanner) {
+        installBanner.style.display = 'block';
+    }
+});
+
+if (installBtn) {
+    installBtn.addEventListener('click', async () => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            console.log(`L'utilisateur a répondu : ${outcome}`);
+            deferredPrompt = null;
+            if (installBanner) installBanner.style.display = 'none';
+        } else {
+            // Message pour iOS (iPhone)
+            Swal.fire({
+                title: 'Installation',
+                text: "Sur iPhone : Appuyez sur le bouton 'Partager' (carré avec flèche), puis sur 'Sur l'écran d'accueil' 📲",
+                icon: 'info'
+            });
+        }
+    });
+}
+</script>
+
+<div id="modalJustification" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:1000; align-items:center; justify-content:center;">
+    <div style="background:white; width:90%; max-width:400px; padding:25px; border-radius:20px; box-shadow:0 20px 40px rgba(0,0,0,0.2);">
+        <h3 style="color:#1e40af; margin-top:0;"><i class="fas fa-edit"></i> Justification</h3>
+        <p style="font-size:0.85rem; color:#64748b;">Expliquez la raison de l'absence (maladie, urgence, etc.) :</p>
+        <textarea id="raisonAbsence" placeholder="Ex: Mon enfant est souffrant..." style="width:100%; height:100px; padding:12px; border-radius:10px; border:2px solid #e2e8f0; margin-top:10px; font-family:inherit; box-sizing:border-box;"></textarea>
+        <div style="display:flex; gap:10px; margin-top:20px;">
+            <button onclick="fermerChat()" style="flex:1; background:#f1f5f9; color:#475569; padding:12px; border-radius:10px; border:none; cursor:pointer; font-weight:bold;">Annuler</button>
+            <button onclick="envoyerJustification()" style="flex:2; background:#059669; color:white; padding:12px; border-radius:10px; border:none; cursor:pointer; font-weight:bold;">Envoyer au Directeur</button>
+        </div>
+    </div>
+</div>
+
+<div id="pwa-install-banner" style="display:none; position:fixed; bottom:20px; left:50%; transform:translateX(-50%); width:90%; max-width:400px; background:white; padding:15px; border-radius:15px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index:10001; border: 1px solid #e2e8f0; font-family: 'Inter', sans-serif;">
+    <div style="display:flex; align-items:center; gap:15px;">
+        <div style="background:#1a73e8; width:45px; height:45px; border-radius:10px; display:flex; align-items:center; justify-content:center; color:white; font-size:20px;">📲</div>
+        <div style="flex:1;">
+            <h4 style="margin:0; font-size:14px; color:#1e293b;">Installer l'App EduPay</h4>
+            <p style="margin:2px 0 0 0; font-size:12px; color:#64748b;">Accédez plus vite à votre gestion sur l'écran d'accueil.</p>
+        </div>
+        <button id="btn-pwa-install" style="background:#1a73e8; color:white; border:none; padding:8px 12px; border-radius:8px; font-weight:600; font-size:13px; cursor:pointer;">Installer</button>
+        <button onclick="document.getElementById('pwa-install-banner').style.display='none'" style="background:none; border:none; color:#94a3b8; font-size:18px; cursor:pointer;">✕</button>
+    </div>
+</div>
+</body>
+</html>

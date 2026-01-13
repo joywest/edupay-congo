@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analyses Avancées | Direction</title>
+    <link rel="stylesheet" href="css/statistics.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="stats-container">
+        <header class="stats-header">
+            <div class="header-top">
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 20px; background: white; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+    <div>
+        <h1 style="margin: 0; color: #1a73e8; font-size: 22px; font-weight: 700;">Statistiques Décisionnelles</h1>
+        <p id="dateStat" style="margin: 5px 0 0 0; color: #718096; font-size: 14px;"></p>
+    </div>
+    <button onclick="window.location.href='directeur.html'" 
+            style="background: #1a73e8; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 10px; transition: all 0.3s ease; box-shadow: 0 4px 10px rgba(26, 115, 232, 0.2);">
+        <i class="fas fa-reply"></i> Retour
+    </button>
+</div>
+                
+            </div>
+           
+        </header>
+
+        <div class="stats-cards">
+            <div class="card">
+                <i class="fa-solid fa-percent" style="color: #10b981;"></i>
+                <div class="card-info">
+                    <span>Taux de Recouvrement</span>
+                    <h2 id="tauxGlobal">0%</h2>
+                </div>
+            </div>
+            <div class="card">
+                <i class="fa-solid fa-venus-mars" style="color: #4361ee;"></i>
+                <div class="card-info">
+                    <span>Ratio Filles / Garçons</span>
+                    <h2 id="ratioGenre">0 / 0</h2>
+                </div>
+            </div>
+        </div>
+
+      <div class="charts-grid">
+    <div class="chart-box">
+        <h3>Répartition par Genre</h3>
+        <canvas id="chartGenre"></canvas>
+    </div>
+    <div class="chart-box">
+        <h3>État du Recouvrement</h3>
+        <canvas id="chartRecouvrement"></canvas>
+    </div>
+    <div class="chart-box">
+        <h3>Modes de Paiement</h3>
+        <canvas id="chartPaymentModes"></canvas>
+    </div>
+    <div class="chart-box">
+        <h3>Effectifs par Classe</h3>
+        <canvas id="chartClasses"></canvas>
+    </div>
+</div>
+    </div>
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+
+<script src="js/firebase.js"></script> 
+
+<script src="js/statistics.js"></script>
+</body>
+</html>

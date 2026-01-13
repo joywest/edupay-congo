@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <script>
+    // Ce code s'exécute immédiatement, avant que le reste de la page ne charge
+    (function() {
+        const themeSauvegarde = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', themeSauvegarde);
+    })();
+</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Élèves | EduPay Congo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/eleves.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        .header-actions { display: flex; align-items: center; gap: 15px; }
+        .btn-add { margin-left: auto; padding: 10px 20px; background: #1a73e8; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.3s; }
+        .btn-add:hover { background: #1557b0; }
+        .select-filter { padding: 8px 12px; border-radius: 8px; border: 1px solid #ddd; outline: none; }
+        .stats-summary { background: white; padding: 12px 20px; border-radius: 10px; margin-bottom: 20px; display: inline-flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-left: 5px solid #2ecc71; }
+        .stats-summary span { font-weight: 700; color: #2c3e50; margin-left: 10px; }
+        .smart-filter { margin-left: 15px; font-size: 13px; color: #666; display: flex; align-items: center; cursor: pointer; background: #f8f9fa; padding: 5px 10px; border-radius: 20px; border: 1px solid #ddd; }
+        .smart-filter input { margin-right: 8px; }
+        .pro-table th { text-align: left; padding: 12px; background: #f8f9fa; color: #495057; font-size: 13px; border-bottom: 2px solid #eee; }
+        
+        /* Style section paiement */
+        .payment-box { background: #fff9e6; padding: 15px; border-radius: 8px; border: 1px dashed #f39c12; margin-top: 10px; }
+        .payment-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        
+        /* Style pour les liens WhatsApp et Fiche */
+        .btn-wa { color: #25D366; text-decoration: none; font-weight: bold; font-size: 12px; }
+        .student-link { color: #1a73e8; text-decoration: none; font-weight: 600; cursor: pointer; }
+        .student-link:hover { text-decoration: underline; }
+
+        /* AJOUT : Style spécifique pour le module photo */
+        .photo-module-container {
+            background: #fdfdfd;
+            border: 1px dashed #1a73e8;
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        /* À AJOUTER DANS TON BLOC <style> */
+@media screen and (max-width: 768px) {
+    .main-header {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 15px;
+    }
+
+    .header-actions {
+        flex-direction: column;
+        width: 100%;
+        align-items: stretch !important;
+    }
+
+    .btn-add {
+        margin-left: 0; /* Aligne le bouton à gauche sur mobile */
+        width: 100%;
+        order: -1; /* Place le bouton "Ajouter" au-dessus des filtres */
+    }
+
+    .list-header {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    #searchStudent {
+        width: 100% !important;
+    }
+}
+    </style>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">☰</button>
+
+    <div class="wrapper">
+    <div class="wrapper">
+        <nav class="sidebar">
+            <div class="brand" id="schoolNameSidebar">Chargement...</div>
+            <ul class="nav-menu">
+                <li class="active"><a href="dashboard.html"><span class="icon">🏠</span> Tableau de bord</a></li>
+                <li><a href="eleves.html"><span class="icon">👥</span> Élèves</a></li>
+                <li><a href="frais.html"><span class="icon">📊</span> Frais Scolaires</a></li>
+                <li><a href="paiements.html"><span class="icon">💸</span> Paiements</a></li>
+                <li><a href="factures.html"><span class="icon">📄</span> Reçus</a></li>
+                <li><a href="directeur.html" style="background: rgba(255,255,255,0.1); border-radius: 8px;"><span class="icon">📈</span> Rapports Direction</a></li>
+            </ul>
+            <div class="sidebar-footer">
+       <div class="user-box" id="userProfileBtn" onclick="ouvrirMenuParametres()" style="cursor: pointer;">
+    <div class="avatar">AD</div>
+    <span id="userDisplay">Admin</span>
+</div>
+      <button onclick="logout()" class="btn-logout">Déconnexion</button>
+    </div>
+        </nav>
+
+        <main class="content">
+            <header class="main-header">
+                <h2>Gestion des Élèves</h2>
+               <div class="header-actions">
+    <select id="filterByClass" onchange="filterStudentsByClass()" class="select-filter">
+        <option value="all">Toutes les classes</option>
+        <optgroup label="Primaire">
+            <option value="CP1">CP1</option><option value="CP2">CP2</option>
+            <option value="CE1">CE1</option><option value="CE2">CE2</option>
+            <option value="CM1">CM1</option><option value="CM2">CM2</option>
+        </optgroup>
+        <optgroup label="Collège">
+            <option value="6eme">6ème</option><option value="5eme">5ème</option>
+            <option value="4eme">4ème</option><option value="3eme">3ème</option>
+        </optgroup>
+        <optgroup label="Lycée">
+            <option value="Seconde">Seconde</option><option value="Premiere">Première</option>
+            <option value="Terminale">Terminale</option>
+        </optgroup>
+    </select>
+
+    <button onclick="ouvrirModalControle()" class="btn-report-directeur" style="padding: 8px 15px; background: #fff; color: #1a73e8; border: 1px solid #1a73e8; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.3s;">
+        📊 Rapport Appels
+    </button>
+
+    <label class="smart-filter">
+        <input type="checkbox" id="onlyDebtors" onchange="filterStudentsByClass()"> ⚠️ Impayés uniquement
+    </label>
+    <button class="btn-add" onclick="toggleStudentForm()">+ Nouvel Élève</button>
+</div>
+            </header>
+            <input type="file" id="excelInput" accept=".xlsx, .xls" style="display: none;" onchange="traiterFichierExcel(event)">
+
+<div style="display: flex; align-items: center; gap: 15px; margin-top: 15px; margin-bottom: 15px;">
+
+    <button onclick="document.getElementById('excelInput').click()" 
+        style="background: #059669; color: white; border: none; padding: 0 20px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 600; transition: 0.3s; height: 40px; margin: 0;"
+        onmouseover="this.style.background='#047857'" onmouseout="this.style.background='#059669'">
+        Importer depuis Excel
+    </button>
+
+    <div class="stats-summary" style="background: white; padding: 0 15px; border-radius: 10px; border: 1px solid #e2e8f0; border-left: 4px solid #10b981; display: flex; align-items: center; height: 40px; margin: 0; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+        <p style="margin: 0; font-weight: 600; color: #1e293b; white-space: nowrap;">
+            Effectif total : <span id="totalCountDisplay" style="color: #059669; margin-left: 5px;">28 élève(s)</span>
+        </p>
+    </div>
+
+</div>
+            <div id="studentFormContainer" class="white-panel student-form-card" style="display: none;">
+                <h3>Inscription d'un nouvel élève</h3>
+                <form id="addStudentForm">
+                    <div class="form-sections-container">
+                        <div class="form-section">
+                            <h4>🆔 Identité</h4>
+
+                            <div class="photo-module-container">
+                                <div id="cameraArea" style="display: none; margin-bottom: 10px;">
+                                    <video id="webcam" width="120" height="120" autoplay playsinline style="border-radius: 50%; object-fit: cover; border: 2px solid #1a73e8; background: #000;"></video>
+                                    <canvas id="photoCanvas" width="150" height="150" style="display: none;"></canvas>
+                                </div>
+                                <div id="previewArea">
+                                   <img id="viewStudentPhoto" src="https://ui-avatars.com/api/?name=Eleve&background=random" alt="Photo">
+                                </div>
+                                <div style="margin-top: 8px; display: flex; justify-content: center; gap: 5px;">
+                                    <button type="button" id="startCamBtn" style="font-size: 11px; padding: 5px 10px; cursor: pointer; border-radius: 5px; border: 1px solid #1a73e8; background: #fff; color: #1a73e8;">📷 Activer</button>
+                                    <button type="button" id="captureBtn" style="display: none; font-size: 11px; padding: 5px 10px; cursor: pointer; border-radius: 5px; border: none; background: #2ecc71; color: #fff;">📸 Capturer</button>
+                                </div>
+                            </div>
+
+                            <div class="input-group">
+                                <label>Nom Complet</label>
+                                <input type="text" id="studentName" placeholder="Ex: Jean Mvoula" required>
+                            </div>
+                            <div class="form-row">
+                                <div class="input-group"><label>Sexe</label>
+                                    <select id="studentGender"><option value="M">M</option><option value="F">F</option></select>
+                                </div>
+                                <div class="input-group"><label>Date Naissance</label><input type="date" id="studentBirth"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h4>🏫 Scolarité</h4>
+                            <div class="form-row">
+                                <div class="input-group"><label>Classe</label>
+                                    <select id="studentClass" required>
+                                        <option value="">Choisir...</option>
+                                        <option value="CP1">CP1</option><option value="CP2">CP2</option>
+                                        <option value="CE1">CE1</option><option value="CE2">CE2</option>
+                                        <option value="CM1">CM1</option><option value="CM2">CM2</option>
+                                        <option value="6eme">6ème</option><option value="5eme">5ème</option>
+                                        <option value="4eme">4ème</option><option value="3eme">3ème</option>
+                                        <option value="Seconde">Seconde</option><option value="Premiere">Première</option>
+                                        <option value="Terminale">Terminale</option>
+                                    </select>
+                                </div>
+                                <div class="input-group"><label>Année Scolaire</label>
+                                    <input type="text" id="schoolYear" value="2024-2025">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section payment-box">
+                            <h4>💰 Paiement à l'Inscription</h4>
+                            <div class="payment-grid">
+                                <div class="input-group">
+                                    <label>Frais Inscription</label>
+                                    <input type="number" id="payInscription" value="0">
+                                </div>
+                                <div class="input-group">
+                                    <label>Versé pour Scolarité</label>
+                                    <input type="number" id="payScolarite" value="0">
+                                </div>
+                                <div class="input-group">
+                                    <label>Frais Examen</label>
+                                    <input type="number" id="payExamen" value="0">
+                                </div>
+                                <div class="input-group">
+                                    <label>Uniforme</label>
+                                    <input type="number" id="payUniforme" value="0">
+                                </div>
+                            </div>
+                            <div class="input-group" style="margin-top:10px;">
+                                <label>Mode de Règlement</label>
+                                <select id="paymentMethod">
+                                    <option value="Cash">Espèces</option>
+                                    <option value="Mobile Money">Mobile Money</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h4>👨‍👩‍👦 Parent & Contact</h4>
+                            <div class="input-group"><label>Tuteur / Parent</label><input type="text" id="parentName" required></div>
+                            <div class="input-group"><label>Téléphone WhatsApp</label><input type="tel" id="parentPhone" placeholder="Ex: 061234567" required></div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions-premium" style="margin-top: 20px; display: flex; gap: 10px;">
+                        <button type="button" class="btn-premium btn-cancel" onclick="toggleStudentForm()" style="background:#eee; padding:10px 20px; border-radius:8px; border:none; cursor:pointer;">Annuler</button>
+                        <button type="submit" class="btn-premium btn-save" style="background:#2ecc71; color:white; padding:10px 20px; border-radius:8px; border:none; cursor:pointer; font-weight:bold;">Enregistrer & Encaisser</button>
+                    </div>
+                </form>
+            </div>
+
+            <style>
+                .list-container { padding: 25px; border-radius: 15px; background: #fff; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+                .pro-table thead th { background: #f8f9fa; color: #5f6368; padding: 15px; font-size: 13px; text-transform: uppercase; border-bottom: 2px solid #eee; text-align: left; }
+                .pro-table tbody tr { transition: all 0.2s; border-bottom: 1px solid #f1f1f1; }
+                .pro-table tbody tr:hover { background: #fcfdfe; transform: translateY(-1px); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+                .pro-table td { padding: 15px; font-size: 14px; color: #444; vertical-align: middle; }
+                .status-badge { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+            </style>
+
+            <div class="white-panel list-container">
+                <div class="list-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                    <h3 style="color: #2c3e50; font-size: 1.5rem;">Liste des inscrits</h3>
+                    <input type="text" id="searchStudent" placeholder="Rechercher un nom..." onkeyup="searchStudent()" 
+                           style="padding:10px 15px; border-radius:10px; border:1px solid #dfe1e5; width:300px; outline: none; transition: 0.3s;">
+                </div>
+               <div class="table-mobile"> 
+    <table class="pro-table" style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr>
+                <th>Matricule</th>
+                <th>Nom & Prénom</th>
+                <th>État Scolarité</th>
+                <th>Sexe</th> 
+                <th>Classe</th>
+                <th>Parent</th>
+                <th>Contact</th>
+                <th style="text-align: center;">Action</th>
+            </tr>
+        </thead>
+        <tbody id="studentsTableBody"></tbody>
+        <div id="loadingStatus" style="text-align:center; padding: 20px; display:none;">
+    <div class="skeleton" style="height: 30px; margin-bottom: 10px;"></div>
+</div>
+<div style="text-align: center; margin-top: 20px;">
+    <button id="btnLoadMore" style="display:none; padding: 10px 25px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 8px; cursor: pointer; font-weight: 600; color: #1a73e8;" onclick="loadMoreStudents()">
+        Voir plus d'élèves ↓
+    </button>
+</div>
+    </table>
+</div>
+            </div>
+        </main>
+    </div>
+
+   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    
+    <script src="js/firebase.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/eleves.js"></script>
+
+    <script>
+    // Gestion du Menu Sidebar pour Mobile (Gardé tel quel)
+    function toggleSidebar() {
+        const sidebar = document.querySelector('.sidebar');
+        sidebar.classList.toggle('active');
+    }
+
+    // Fonction pour afficher/cacher le formulaire d'inscription (Gardé tel quel)
+    function toggleStudentForm() {
+        const form = document.getElementById('studentFormContainer');
+        if (form.style.display === 'none' || form.style.display === '') {
+            form.style.display = 'block';
+            form.scrollIntoView({ behavior: 'smooth' }); 
+        } else {
+            form.style.display = 'none';
+        }
+    }
+
+    // Fermeture automatique du menu mobile (Gardé tel quel)
+    document.querySelectorAll('.nav-menu a').forEach(link => {
+        link.addEventListener('click', () => {
+            if(window.innerWidth <= 992) {
+                document.querySelector('.sidebar').classList.remove('active');
+            }
+        });
+    });
+
+    // --- FONCTIONS POUR LE CONTRÔLE DIRECTION ---
+
+    function ouvrirModalControle() {
+        document.getElementById('modalControle').style.display = 'flex';
+        document.body.style.overflow = 'hidden'; 
+        chargerDonneesControle();
+    }
+
+    function fermerModalControle() {
+        document.getElementById('modalControle').style.display = 'none';
+        document.body.style.overflow = 'auto'; 
+    }
+
+  function chargerDonneesControle() {
+    // On utilise exactement le nom défini dans ton fichier eleves.js
+    // On vérifie d'abord 'currentSchoolId' (ta variable locale) 
+    // puis 'localStorage.getItem('currentSchoolId')'
+    const sId = (typeof currentSchoolId !== 'undefined' && currentSchoolId) 
+                ? currentSchoolId 
+                : localStorage.getItem('currentSchoolId');
+
+    if (!sId) {
+        console.error("ID école (currentSchoolId) toujours introuvable.");
+        Swal.fire("Patience", "La connexion à l'école est en cours...", "info");
+        return;
+    }
+
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('dateJourModal').innerText = new Date().toLocaleDateString('fr-FR', { 
+        weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' 
+    });
+
+    // Liste des classes
+    const mesClasses = ["CP1", "CP2", "CE1", "CE2", "CM1", "CM2", "6eme", "5eme", "4eme", "3eme", "Seconde", "Premiere", "Terminale"];
+
+    // On lance la recherche dans Firebase avec le bon sId
+    db.ref(`schools/${sId}/controle_appels/${today}`).on('value', (snapshot) => {
+        const data = snapshot.val() || {};
+        const container = document.getElementById('listeControleModal');
+        container.innerHTML = "";
+        
+        let count = 0;
+        mesClasses.forEach(nomClasse => {
+            const info = data[nomClasse];
+            const fait = (info !== undefined);
+            if(fait) count++;
+
+            container.innerHTML += `
+                <div style="background:white; padding:15px; border-radius:12px; text-align:center; border:2px solid ${fait ? '#2ecc71' : '#f1f5f9'}; transition:0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                    <div style="font-size:0.9rem; font-weight:700; color:#1e293b; margin-bottom:8px;">${nomClasse}</div>
+                    <div style="font-size:0.75rem; font-weight:600; padding:5px; border-radius:8px; ${fait ? 'background:#dcfce7; color:#166534;' : 'background:#fee2e2; color:#991b1b;'}">
+                        ${fait ? '✅ ' + info.heure : '❌ Attente'}
+                    </div>
+                </div>
+            `;
+        });
+
+        document.getElementById('statsAppelModal').innerText = `${count} / ${mesClasses.length}`;
+    });
+}
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <div id="modalControle" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:10000; justify-content:center; align-items:center; padding:20px; font-family: 'Inter', sans-serif;">
+    <div style="background:white; width:100%; max-width:600px; border-radius:16px; overflow:hidden; position:relative; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2);">
+        
+        <div style="background:#1a73e8; color:white; padding:25px; text-align:center;">
+            <h2 style="margin:0; font-size:1.5rem;">Suivi des Appels</h2>
+            <div id="dateJourModal" style="opacity:0.9; margin-top:8px; font-size:0.9rem;"></div>
+            <button onclick="fermerModalControle()" style="position:absolute; top:15px; right:15px; background:rgba(255,255,255,0.2); border:none; color:white; width:32px; height:32px; border-radius:50%; cursor:pointer; font-size:18px;">✕</button>
+        </div>
+
+        <div style="padding:20px; max-height:65vh; overflow-y:auto; background:#f1f5f9;">
+            <div style="background:white; padding:15px; border-radius:12px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                <span style="font-weight:600; color:#475569;">Progression globale</span>
+                <span id="statsAppelModal" style="background:#1a73e8; color:white; padding:4px 12px; border-radius:20px; font-size:0.85rem; font-weight:bold;">0 / 0</span>
+            </div>
+
+            <div id="listeControleModal" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(130px, 1fr)); gap:12px;">
+                </div>
+        </div>
+
+        <div style="padding:15px; background:white; text-align:right; border-top:1px solid #e2e8f0;">
+            <button onclick="fermerModalControle()" style="padding:10px 25px; border-radius:8px; border:none; background:#64748b; color:white; cursor:pointer; font-weight:600;">Fermer</button>
+        </div>
+    </div>
+</div>
+</body>
+</html>

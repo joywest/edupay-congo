@@ -1,0 +1,148 @@
+* {
+    box-sizing: border-box;
+    max-width: 100%; /* Empêche n'importe quel élément de dépasser de l'écran */
+}
+/* Container principal pour le formulaire */
+.card-form {
+    max-width: 900px;
+    margin: 20px auto;
+    padding: 30px;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+/* Organisation en grille */
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2 colonnes */
+    gap: 25px;
+    margin-bottom: 30px;
+}
+
+/* Groupes de champs */
+.form-group label {
+    display: block;
+    font-weight: 600;
+    color: #475569;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.form-group input, 
+.form-group select {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    background-color: #f8fafc;
+}
+
+.form-group input:focus {
+    border-color: #3b82f6;
+    background-color: #fff;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+    outline: none;
+}
+
+/* Style spécial pour le groupe Radio (Mode de paiement) */
+.radio-group {
+    display: flex;
+    gap: 15px;
+    background: #f1f5f9;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.radio-group label {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px;
+    background: white;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-bottom: 0; /* Override */
+    border: 2px solid transparent;
+    transition: 0.2s;
+}
+
+.radio-group input[type="radio"] {
+    width: auto;
+    margin: 0;
+}
+
+.radio-group label:has(input:checked) {
+    border-color: #3b82f6;
+    color: #3b82f6;
+    background: #eff6ff;
+}
+
+/* Boîte d'info (Dette de l'élève) */
+.info-box {
+    background: #e0f2fe;
+    border-left: 5px solid #0ea5e9;
+    color: #0369a1;
+    font-weight: 500;
+}
+
+/* Pied de formulaire / Bouton */
+.modal-footer {
+    display: flex;
+    justify-content: center;
+    padding-top: 20px;
+    border-top: 1px solid #f1f5f9;
+}
+
+.btn-save {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); /* Orange "Pépite" */
+    color: white;
+    padding: 15px 40px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 10px 15px -3px rgba(217, 119, 6, 0.3);
+    transition: all 0.3s ease;
+}
+
+.btn-save:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 25px -5px rgba(217, 119, 6, 0.4);
+}
+
+/* Responsivité pour mobile */
+@media (max-width: 768px) {
+    .form-grid { grid-template-columns: 1fr; }
+}
+@media screen and (max-width: 768px) {
+    /* 1. Aligne tout en une seule colonne */
+    .container, .main-content, .form-container {
+        width: 100% !important;
+        padding: 10px !important;
+        margin: 0 !important;
+    }
+
+    /* 2. Transforme les grilles (2 ou 3 colonnes) en 1 seule colonne */
+    .row, .grid, .form-row {
+        display: flex;
+        flex-direction: column !important;
+    }
+
+    /* 3. Agrandit les boutons pour le tactile */
+    button, .btn, input[type="submit"] {
+        width: 100%;
+        height: 50px; /* Plus facile à cliquer avec le pouce */
+        font-size: 16px !important;
+    }
+
+    /* 4. Cache les éléments inutiles sur mobile pour gagner de la place */
+    .hide-on-mobile {
+        display: none !important;
+    }
+}

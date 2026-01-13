@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+     <script>
+    // Ce code s'exécute immédiatement, avant que le reste de la page ne charge
+    (function() {
+        const themeSauvegarde = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', themeSauvegarde);
+    })();
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Factures & Reçus | EduPay Congo</title>
+    
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/eleves.css">
+    
+    <style>
+        /* Ajustements spécifiques pour cette page sur mobile */
+        @media screen and (max-width: 992px) {
+            .main-content {
+                margin-left: 0 !important;
+                padding: 15px !important;
+                padding-top: 80px !important; /* Pour ne pas être sous le bouton ☰ */
+            }
+            
+            /* Rend le tableau scrollable sur mobile pour voir toutes les colonnes */
+            .card {
+                overflow-x: auto !important;
+                display: block;
+            }
+            
+            .table-pro {
+                min-width: 800px; /* Force la largeur pour éviter l'écrasement */
+            }
+        }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">☰</button>
+
+    <div class="wrapper">
+        <div class="sidebar">
+            <div class="sidebar-brand">
+                <h2 id="schoolNameSidebar">Chargement...</h2>
+            </div>
+            
+            <ul class="sidebar-menu">
+                <li><a href="dashboard.html"><span>🏠</span> Tableau de bord</a></li>
+                <li><a href="eleves.html"><span>👥</span> Élèves</a></li>
+                <li><a href="frais.html"><span>📊</span> Frais Scolaires</a></li>
+                <li><a href="paiements.html"><span>💳</span> Paiements</a></li>
+                <li><a href="factures.html" class="active"><span>🧾</span> Reçus</a></li>
+            </ul>
+
+            <div class="sidebar-footer">
+               <button onclick="logout()" class="btn-logout">Déconnexion</button>
+            </div>
+        </div>
+
+
+        <div class="main-content">
+            <header>
+                <h1>🧾 Gestion des Factures & Reçus</h1>
+                <p>Historique complet des paiements encaissés</p>
+            </header>
+            <div style="background: #ffffff; padding: 20px; border-radius: 12px; margin-bottom: 20px; display: flex; gap: 15px; flex-wrap: wrap; align-items: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid #e2e8f0;">
+    
+    <div style="flex: 2; min-width: 200px;">
+        <label style="font-size: 11px; font-weight: bold; color: #64748b; display: block; margin-bottom: 5px;">RECHERCHE RAPIDE</label>
+        <input type="text" id="filterNom" placeholder="Nom ou Matricule..." onkeyup="filtrerRecus()" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none;">
+    </div>
+
+    <div style="flex: 1; min-width: 150px;">
+        <label style="font-size: 11px; font-weight: bold; color: #64748b; display: block; margin-bottom: 5px;">CLASSE</label>
+        <select id="filterClasse" onchange="filtrerRecus()" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px;">
+            <option value="">Toutes les classes</option>
+            <option value="CP1">CP1</option>
+            <option value="CP2">CP2</option>
+            <option value="CE1">CE1</option>
+            <option value="CE2">CE2</option>
+            <option value="CM1">CM1</option>
+            <option value="CM2">CM2</option>
+            <option value="6ème">6ème</option>
+             <option value="5ème">5ème</option>
+               <option value="4ème">4ème</option>
+                <option value="3ème">3ème</option>
+                 <option value="Seconde">Seconde</option>
+                  <option value="Première">Première</option>
+                   <option value="Terminale">Terminale</option>
+        </select>
+    </div>
+
+    <div style="flex: 1; min-width: 150px;">
+        <label style="font-size: 11px; font-weight: bold; color: #64748b; display: block; margin-bottom: 5px;">DATE PRÉCISE</label>
+        <input type="date" id="filterDate" onchange="filtrerRecus()" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px;">
+    </div>
+
+    <div style="background: #f1f5f9; padding: 10px 20px; border-radius: 8px; text-align: right; margin-left: auto;">
+        <div style="font-size: 10px; color: #64748b; font-weight: bold;">TOTAL FILTRÉ</div>
+        <div id="montantTotalFiltré" style="font-size: 18px; font-weight: 800; color: #1e40af;">0 F</div>
+    </div>
+</div>
+
+            <div class="card" style="margin-bottom: 25px;">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <span style="font-size: 20px;">🔍</span>
+                    <input type="text" id="searchFacture" 
+                           onkeyup="filtrerFactures()" 
+                           placeholder="Rechercher par N° de reçu ou Matricule élève..." 
+                           style="flex: 1; border: 1px solid #e2e8f0; padding: 12px; border-radius: 8px; outline: none;">
+                </div>
+            </div>
+
+            <div class="card" style="padding: 0; overflow: hidden;">
+                <table class="table-pro">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>N° Reçu</th>
+                            <th>Matricule</th>
+                            <th class="text-right">Montant</th>
+                            <th>Mode</th>
+                            <th>Caissier</th>
+                            <th class="text-center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listRecus">
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 40px; color: #94a3b8;">
+                                Chargement des reçus en cours...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    
+    <script src="js/firebase.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/factures.js"></script>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            sidebar.classList.toggle('active');
+        }
+    </script>
+
+</body>
+</html>

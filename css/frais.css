@@ -1,0 +1,140 @@
+/* --- CONFIGURATION GÉNÉRALE --- */
+* {
+    box-sizing: border-box;
+    max-width: 100%;
+}
+
+/* --- ADAPTATION DES COULEURS (MODE SOMBRE) --- */
+/* Si les variables ne sont pas héritées, on les redéfinit par sécurité */
+:root {
+    --frais-bg-card: #ffffff;
+    --frais-bg-section: #f8fafc;
+    --frais-text: #1e293b;
+    --frais-border: #e2e8f0;
+    --frais-input-bg: #ffffff;
+}
+
+[data-theme="dark"] {
+    --frais-bg-card: #1e293b;
+    --frais-bg-section: #0f172a;
+    --frais-text: #f8fafc;
+    --frais-border: #334155;
+    --frais-input-bg: #1e293b;
+}
+
+/* --- CONTENEUR PRINCIPAL --- */
+.panel.card {
+    background: var(--frais-bg-card) !important;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    max-width: 900px;
+    margin: 20px auto;
+    border: 1px solid var(--frais-border);
+    transition: background 0.3s, border 0.3s;
+}
+
+.panel h3 {
+    color: var(--frais-text) !important;
+    font-size: 1.5rem;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* --- GRILLE DU FORMULAIRE --- */
+.grid-form {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+/* --- SECTIONS DU FORMULAIRE --- */
+.form-section {
+    background: var(--frais-bg-section) !important;
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid var(--frais-border);
+}
+
+.form-section h4 {
+    color: var(--frais-text) !important;
+    opacity: 0.8;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 15px;
+    border-bottom: 2px solid var(--frais-border);
+    padding-bottom: 8px;
+}
+
+.full-width { grid-column: span 2; }
+
+/* --- INPUTS ET SELECTS --- */
+input[type="text"], input[type="number"], input[type="date"], select {
+    width: 100%;
+    padding: 12px 15px;
+    margin-bottom: 15px;
+    border: 1.5px solid var(--frais-border);
+    border-radius: 8px;
+    font-size: 1rem;
+    color: var(--frais-text) !important;
+    background-color: var(--frais-input-bg) !important;
+    outline: none;
+}
+
+/* --- STABILISATION DU MENU DÉROULANT --- */
+#classeFrais:focus {
+    border-color: #2563eb;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+#classeFrais optgroup {
+    font-weight: 700;
+    color: #2563eb;
+    background: var(--frais-bg-section);
+}
+
+/* --- BOUTON ENREGISTRER --- */
+.modal-footer {
+    grid-column: span 2;
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+.btn-save {
+    background-color: #22c55e;
+    color: white;
+    padding: 14px 30px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.btn-save:hover {
+    background-color: #16a34a;
+    transform: translateY(-2px);
+}
+
+/* --- RESPONSIVE --- */
+@media (max-width: 768px) {
+    .grid-form { grid-template-columns: 1fr; }
+    .full-width, .modal-footer { grid-column: span 1; }
+    
+    .container, .main-content, .form-container {
+        width: 100% !important;
+        padding: 10px !important;
+        margin: 0 !important;
+    }
+
+    button, .btn, input[type="submit"] {
+        width: 100%;
+        height: 50px;
+        font-size: 16px !important;
+    }
+}

@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <script>
+    // Ce code s'exécute immédiatement, avant que le reste de la page ne charge
+    (function() {
+        const themeSauvegarde = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', themeSauvegarde);
+    })();
+</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encaissement | EduPay Congo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="css/dashboard.css">
+   <style>
+    :root {
+        --primary: #2563eb;
+        --success: #10b981;
+        --danger: #ef4444;
+        --bg: #f8fafc;
+        --card: #ffffff;
+        --text-main: #1e293b;
+        --border: #e2e8f0; /* Nouvelle variable pour les bordures */
+        --input-bg: #ffffff; /* Nouvelle variable pour le fond des inputs */
+    }
+
+    /* Configuration du Mode Sombre - S'active via data-theme */
+    [data-theme="dark"] {
+        --bg: #0f172a;
+        --card: #1e293b;
+        --text-main: #f8fafc;
+        --border: #334155;
+        --input-bg: #1e293b;
+    }
+
+    body { 
+        font-family: 'Inter', sans-serif; 
+        background-color: var(--bg); 
+        color: var(--text-main); 
+        transition: background-color 0.3s, color 0.3s;
+    }
+
+    /* Conteneur de recherche stylisé */
+    .search-section {
+        /* On adapte le gradient pour le mode sombre */
+        background: linear-gradient(135deg, var(--card) 0%, var(--bg) 100%);
+        padding: 25px;
+        border-radius: 16px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        margin-bottom: 25px;
+        border: 1px solid var(--border);
+    }
+
+    .input-wrapper { position: relative; display: flex; align-items: center; }
+    .input-wrapper i { position: absolute; left: 15px; color: #94a3b8; }
+    
+    input[type="text"], input[type="number"], select {
+        width: 100%;
+        padding: 12px 12px 12px 45px;
+        border: 1.5px solid var(--border);
+        background-color: var(--input-bg);
+        color: var(--text-main);
+        border-radius: 10px;
+        font-size: 15px;
+        transition: all 0.3s;
+    }
+
+    input:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1); }
+
+    /* Carte Info Élève */
+    #infoEleveSelectionne {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 15px;
+        background: var(--primary);
+        color: white;
+        padding: 20px;
+        border-radius: 12px;
+        margin-top: 15px;
+        animation: fadeIn 0.4s ease-out;
+    }
+
+    .stat-item { border-left: 2px solid rgba(255,255,255,0.3); padding-left: 15px; }
+    .stat-label { font-size: 12px; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.5px; }
+    .stat-value { font-size: 18px; font-weight: 700; }
+
+    /* Radio Buttons Modernes */
+    .radio-group { display: flex; gap: 10px; margin-top: 10px; }
+    .radio-group label {
+        flex: 1;
+        cursor: pointer;
+        padding: 12px;
+        text-align: center;
+        background: var(--card);
+        border: 1.5px solid var(--border);
+        border-radius: 10px;
+        transition: 0.2s;
+        font-weight: 500;
+        color: var(--text-main);
+    }
+    .radio-group input { display: none; }
+    .radio-group input:checked + span { color: var(--primary); }
+    .radio-group label:has(input:checked) {
+        border-color: var(--primary);
+        background: rgba(37, 99, 235, 0.1);
+        color: var(--primary);
+    }
+
+    /* Bouton Valider */
+    .btn-pay {
+        background: var(--primary);
+        color: white;
+        padding: 16px;
+        border-radius: 12px;
+        border: none;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        transition: transform 0.2s, background 0.2s;
+    }
+    .btn-pay:hover { background: #1d4ed8; transform: translateY(-2px); }
+
+    /* Styles pour le formulaire principal */
+    #formPaiement {
+        background: var(--card) !important;
+        border: 1px solid var(--border);
+    }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    @media screen and (max-width: 992px) {
+        #formPaiement > div {
+            grid-template-columns: 1fr !important;
+        }
+        .main-header {
+            padding-top: 50px !important;
+        }
+    }
+
+    /* Style pour les cases des mois */
+    .mois-checkbox {
+        cursor: pointer;
+        padding: 12px 8px;
+        text-align: center;
+        background: var(--card);
+        border: 1.5px solid var(--border);
+        border-radius: 10px;
+        transition: all 0.2s ease;
+        font-size: 14px;
+        font-weight: 500;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 60px;
+        color: var(--text-main);
+    }
+
+    .mois-checkbox:hover:not(.deja-paye) {
+        border-color: var(--primary);
+        background: var(--bg);
+    }
+
+    .mois-checkbox.selected {
+        background: rgba(37, 99, 235, 0.1);
+        border-color: var(--primary);
+        color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .mois-checkbox.deja-paye {
+        background: var(--bg);
+        color: #94a3b8;
+        border-color: var(--border);
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+
+    .mois-checkbox.deja-paye small {
+        color: var(--success);
+        font-weight: 600;
+    }
+
+    /* Correction pour la section frais annexes */
+    #extraFees {
+        background: var(--bg) !important;
+        border: 1.5px dashed var(--border) !important;
+    }
+</style>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">☰</button>
+    <div class="wrapper">
+        <nav class="sidebar">
+            <div class="brand" id="schoolNameSidebar">EduPay Congo</div>
+            <ul class="nav-menu">
+                <li><a href="dashboard.html"><i class="fa-solid fa-gauge"></i> Tableau de bord</a></li>
+                <li><a href="eleves.html"><i class="fa-solid fa-graduation-cap"></i> Élèves</a></li>
+                <li class="active"><a href="paiements.html"><i class="fa-solid fa-credit-card"></i> Paiements</a></li>
+                <li><a href="factures.html"><i class="fa-solid fa-file-invoice"></i> Reçus</a></li>
+                <li><a href="directeur.html" style="background: rgba(255,255,255,0.1);"><i class="fa-solid fa-chart-line"></i> Direction</a></li>
+            </ul>
+        </nav>
+
+        <main class="content">
+            <header class="main-header" style="margin-bottom: 30px;">
+                <h1 style="font-weight: 700; color: #0f172a;">Caisse & Encaissement</h1>
+                <p style="color: #64748b;">Enregistrez les paiements de scolarité et frais divers</p>
+            </header>
+
+            <div class="search-section">
+                <div class="form-group">
+                    <label style="font-weight: 600; margin-bottom: 10px; display: block;">Identifier l'élève</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="searchMatricule" list="studentsList" 
+                               placeholder="Commencez à taper le nom ou matricule..." 
+                               oninput="rechercheEleveAutomatique(this.value)" 
+                               autocomplete="off" autofocus>
+                    </div>
+                    <datalist id="studentsList"></datalist>
+                </div>
+
+                <div id="infoEleveSelectionne" style="display: none;">
+                    <div class="stat-item">
+                        <div class="stat-label">Élève</div>
+                        <div class="stat-value" id="displayStudentName">---</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Classe</div>
+                        <div class="stat-value" id="displayStudentClass">---</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Déjà réglé</div>
+                        <div class="stat-value" id="displayPaid">0 F</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Reste à payer</div>
+                        <div class="stat-value" id="displayRest">0 F</div>
+                    </div>
+                </div>
+            </div>
+
+            <form id="formPaiement" style="background: white; padding: 30px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                      <label style="font-weight: 600; margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
+                     <i class="fa-solid fa-calendar-check" style="color: var(--primary);"></i> 
+                      Sélectionner les mois à régler
+                     </label>
+    
+                       <div id="listeMoisContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 12px; margin-top: 10px;">
+                     </div>
+
+                     <input type="hidden" id="payMois" value="">
+                     </div>
+
+                     <div class="form-group">
+                        <label style="font-weight: 600;">Montant Scolarité (FCFA)</label>
+                        <div class="input-wrapper" style="margin-top: 8px;">
+                            <i class="fa-solid fa-money-bill-wave"></i>
+                            <input type="number" id="payScolarite" placeholder="0" value="0" style="padding-left: 45px;">
+                        </div>
+                    </div>
+
+                    <div id="extraFees" style="display:none; grid-column: 1 / -1; background: #f8fafc; padding: 20px; border-radius: 12px; border: 1.5px dashed #cbd5e1;">
+                        <h4 style="margin-top: 0; margin-bottom: 15px; font-size: 14px; color: #475569;">Détails Frais Annexes</h4>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+                            <div class="form-group">
+                                <label style="font-size: 13px;">Inscription</label>
+                                <input type="number" id="payInscrip" value="0">
+                            </div>
+                            <div class="form-group">
+                                <label style="font-size: 13px;">Uniforme</label>
+                                <input type="number" id="payUniforme" value="0">
+                            </div>
+                            <div class="form-group">
+                                <label style="font-size: 13px;">Examen</label>
+                                <input type="number" id="payExamen" value="0">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label style="font-weight: 600;">Méthode de règlement</label>
+                        <div class="radio-group">
+                            <label>
+                                <input type="radio" name="mode" value="Cash" checked>
+                                <span><i class="fa-solid fa-wallet"></i> Cash / Espèces</span>
+                            </label>
+                            <label>
+                                <input type="radio" name="mode" value="Mobile Money">
+                                <span><i class="fa-solid fa-mobile-screen"></i> Mobile Money</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-pay" style="width: 100%; margin-top: 30px;">
+                    <i class="fa-solid fa-print"></i> Valider et Générer le Reçu
+                </button>
+            </form>
+        </main>
+    </div>
+
+   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+<script src="js/firebase.js"></script>
+<script src="js/paiements.js"></script>
+<script>
+    function toggleSidebar() {
+        const sidebar = document.querySelector('.sidebar');
+        sidebar.classList.toggle('active');
+    }
+</script>
+</body>
+</html>

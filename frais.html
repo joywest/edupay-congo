@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <script>
+    // Ce code s'exécute immédiatement, avant que le reste de la page ne charge
+    (function() {
+        const themeSauvegarde = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', themeSauvegarde);
+    })();
+</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuration Frais | EduPay Congo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/eleves.css">
+    <link rel="stylesheet" href="css/frais.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">☰</button>
+    <div class="wrapper">
+           <nav class="sidebar">
+    <div class="brand" id="schoolNameSidebar">Chargement...</div>
+    
+    <ul class="nav-menu">
+        <li class="active"><a href="dashboard.html"><span class="icon">🏠</span> Tableau de bord</a></li>
+        <li><a href="eleves.html"><span class="icon">👥</span> Élèves</a></li>
+        <li><a href="frais.html"><span class="icon">📊</span> Frais Scolaires</a></li>
+        <li><a href="paiements.html"><span class="icon">💸</span> Paiements</a></li>
+        <li><a href="factures.html"><span class="icon">📄</span> Reçus</a></li>
+        <li><a href="directeur.html" style="background: rgba(255,255,255,0.1); border-radius: 8px;"><span class="icon">📈</span> Rapports Direction</a></li>
+    </ul>
+    <div class="sidebar-footer">
+        <div class="user-box">
+            <div class="avatar">AD</div>
+            <span id="userDisplay">Admin</span>
+        </div>
+      <button onclick="logout()" class="btn-logout">Déconnexion</button>
+    </div>
+</nav>
+
+        <main class="content">
+            <header class="main-header">
+                <h2>📊 Configuration des Frais</h2>
+            </header>
+
+            <div class="panel card">
+                <form id="formParamFrais" class="grid-form">
+                    <div class="form-section">
+                        <h4>🏫 Identification</h4>
+                        <label>Année Scolaire</label>
+                        <input type="text" id="anneeFrais" value="2024-2025" required>
+                        
+                        <label>Classe concernée</label>
+                        <div class="select-wrapper" style="position: relative; height: 50px; margin-bottom: 15px;">
+                            <select id="classeFrais" required 
+                                onfocus="this.size=8;" 
+                                onblur="this.size=1;" 
+                                onchange="this.size=1; this.blur();"
+                                style="position: absolute; z-index: 1000; width: 100%; cursor: pointer;">
+                                <option value="">Choisir la classe...</option>
+                                <optgroup label="Primaire">
+                                    <option value="CP1">CP1</option>
+                                    <option value="CP2">CP2</option>
+                                    <option value="CE1">CE1</option>
+                                    <option value="CE2">CE2</option>
+                                    <option value="CM1">CM1</option>
+                                    <option value="CM2">CM2</option>
+                                </optgroup>
+                                <optgroup label="Collège">
+                                    <option value="6eme">6eme</option>
+                                    <option value="5eme">5eme</option>
+                                    <option value="4eme">4eme</option>
+                                    <option value="3eme">3eme</option>
+                                </optgroup>
+                                <optgroup label="Lycée">
+                                    <option value="Seconde">Seconde</option>
+                                    <option value="Premiere">Premiere</option>
+                                    <option value="Terminale">Terminale</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-section">
+    <h4>💰 Détails du Frais</h4>
+    <label>Type de frais</label>
+    <select id="typeFrais" required>
+        <option value="Scolarité">Scolarité</option>
+        <option value="Inscription">Inscription</option>
+        <option value="Examen">Examen</option>
+        <option value="Uniforme">Uniforme</option>
+    </select>
+    <label>Libellé</label>
+    <input type="text" id="libelleFrais" placeholder="Ex: Scolarité annuelle" required>
+</div>
+
+                    <div class="form-section full-width">
+    <h4>⚙️ Paramètres & Montants</h4>
+    <div class="row" style="display: flex; gap: 15px; margin-bottom: 15px;">
+        <div style="flex:1">
+            <label>Montant Total (FCFA)</label>
+            <input type="number" id="montantTotal" placeholder="Ex: 90000" required>
+        </div>
+        <div style="flex:1" id="blocDateLimite">
+            <label>Date Limite (Paiement intégral)</label>
+            <input type="date" id="dateLimite" required>
+        </div>
+    </div>
+
+    <div id="sectionMensualites" class="row" style="background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px dashed #cbd5e1;">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+            <input type="checkbox" id="fractionnable" style="width: 18px; height: 18px; cursor: pointer;">
+            <label for="fractionnable" style="font-weight: 600; color: #1e293b; cursor: pointer; margin: 0;">
+                Autoriser le paiement par mensualités (chaque mois)
+            </label>
+        </div>
+
+        <div id="optionsMensuelles" style="display: flex; gap: 15px;">
+            <div style="flex:1">
+                <label>Nombre de mois (ex: 9)</label>
+                <input type="number" id="nbMensualites" placeholder="9">
+            </div>
+            <div style="flex:1">
+                <label>Versement Min. (FCFA)</label>
+                <input type="number" id="minVersement" placeholder="Ex: 10000">
+            </div>
+        </div>
+    </div>
+</div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn-save">
+                            💾 Enregistrer la configuration
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="panel card" style="margin-top: 30px;">
+                <h3>📋 Frais enregistrés dans la base</h3>
+                <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+                    <thead>
+                        <tr style="text-align: left; border-bottom: 2px solid #e2e8f0;">
+                            <th style="padding: 10px;">Année</th>
+                            <th style="padding: 10px;">Classe</th>
+                            <th style="padding: 10px;">Type</th>
+                            <th style="padding: 10px;">Montant</th>
+                            <th style="padding: 10px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyFrais"></tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    
+    <script src="js/firebase.js"></script>
+    <script src="js/auth.js"></script> 
+    <script src="js/frais.js"></script>
+    <script>
+    // Fonction indispensable pour ouvrir/fermer la barre latérale sur mobile
+    function toggleSidebar() {
+        const sidebar = document.querySelector('.sidebar');
+        sidebar.classList.toggle('active');
+    }
+
+    // Optionnel : Ferme le menu automatiquement quand on clique sur un lien (pour mobile)
+    document.querySelectorAll('.nav-menu a').forEach(link => {
+        link.addEventListener('click', () => {
+            if(window.innerWidth <= 992) {
+                document.querySelector('.sidebar').classList.remove('active');
+            }
+        });
+    });
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const typeFrais = document.getElementById('typeFrais');
+    const sectionMensualites = document.getElementById('sectionMensualites');
+    const blocDateLimite = document.getElementById('blocDateLimite');
+    const inputDate = document.getElementById('dateLimite');
+
+    function ajusterFormulaire() {
+        if (typeFrais.value === "Scolarité") {
+            // Affichage normal pour la scolarité
+            sectionMensualites.style.display = "block";
+            blocDateLimite.style.display = "block";
+            inputDate.setAttribute("required", ""); // Rend la date obligatoire
+        } else {
+            // Masque pour Inscription, Examen, Uniforme
+            sectionMensualites.style.display = "none";
+            blocDateLimite.style.display = "none";
+            inputDate.removeAttribute("required"); // Évite de bloquer le formulaire si caché
+            
+            // Sécurité : on décoche la case mensualité si on change de type
+            document.getElementById('fractionnable').checked = false;
+        }
+    }
+
+    // Écouteur de changement
+    typeFrais.addEventListener('change', ajusterFormulaire);
+
+    // Exécution initiale au chargement
+    ajusterFormulaire();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <link rel="manifest" href="manifest.json">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#1a73e8">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduPay - Appel Journalier</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root { 
+            --primary: #1e40af; 
+            --success: #059669; 
+            --danger: #dc2626; 
+            --bg: #f8fafc; 
+            --card: #ffffff;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            overflow-x: hidden;
+            background: #000;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 150%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
+                        url('images/ecrant2.jpg');
+            background-size: cover;
+            background-position: center;
+            animation: glissementImage 20s infinite alternate ease-in-out;
+        }
+
+        @keyframes glissementImage {
+            from { transform: translateX(0); }
+            to { transform: translateX(-20%); }
+        }
+
+        .app-header { 
+            background: var(--primary); 
+            color: white; 
+            padding: 30px 20px; 
+            text-align: center; 
+            border-radius: 0 0 30px 30px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .app-header h2 { margin: 0; font-size: 1.4rem; text-transform: uppercase; letter-spacing: 1px; }
+        .date-pill { 
+            display: inline-block; 
+            background: rgba(255,255,255,0.2); 
+            padding: 6px 15px; 
+            border-radius: 20px; 
+            font-size: 0.85rem; 
+            margin-top: 10px; 
+        }
+
+        .main-content { max-width: 500px; margin: -25px auto 0; padding: 0 20px 100px; }
+
+        .filter-card { 
+            background: var(--card); 
+            padding: 20px; 
+            border-radius: 20px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
+            margin-bottom: 20px;
+        }
+        label { display: block; font-weight: 600; margin-bottom: 8px; color: #64748b; font-size: 0.8rem; }
+        select { 
+            width: 100%; 
+            padding: 14px; 
+            border: 2px solid #e2e8f0; 
+            border-radius: 12px; 
+            font-size: 1rem; 
+            background: white;
+            outline: none;
+        }
+
+        .student-list { margin-top: 10px; }
+        .student-row { 
+            background: rgba(255, 255, 255, 0.9); 
+            padding: 15px 20px; 
+            border-radius: 16px; 
+            margin-bottom: 10px;
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            transition: 0.2s;
+        }
+        .student-row.is-absent { border-color: #fee2e2; background: #fffafb; }
+        
+        .student-info { display: flex; flex-direction: column; }
+        .student-name { font-weight: 700; color: #1e293b; font-size: 0.95rem; }
+        .student-mat { font-size: 0.75rem; color: #94a3b8; font-family: monospace; }
+
+        .status-btn {
+            padding: 10px 16px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 800;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: 0.3s;
+            min-width: 90px;
+        }
+        .btn-present { background: #dcfce7; color: #15803d; }
+        .btn-absent { background: var(--danger); color: white; box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2); }
+
+        .btn-floating {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 40px);
+            max-width: 460px;
+            background: var(--success);
+            color: white;
+            padding: 18px;
+            border-radius: 15px;
+            border: none;
+            font-size: 1rem;
+            font-weight: bold;
+            box-shadow: 0 10px 20px rgba(5, 150, 105, 0.3);
+            cursor: pointer;
+            display: none; 
+            z-index: 100;
+        }
+        .skeleton {
+            background: #eee;
+            background: linear-gradient(110deg, #ececec 8%, #f5f5f5 18%, #ececec 33%);
+            border-radius: 8px;
+            background-size: 200% 100%;
+            animation: 1.5s shine linear infinite;
+            height: 60px;
+            margin-bottom: 10px;
+        }
+        @keyframes shine { to { background-position-x: -200%; } }
+    </style>
+</head>
+<body>
+
+    <div class="app-header">
+        <h2 id="ecoleTitre">Chargement...</h2>
+        <div class="date-pill" id="datePill">Chargement date...</div>
+    </div>
+
+    <div class="main-content">
+        <div class="filter-card">
+            <label><i class="fas fa-users"></i> SÉLECTIONNER LA CLASSE</label>
+            <select id="classeSelect" onchange="chargerEleves()">
+                <option value="">-- Chargement des classes --</option>
+            </select>
+        </div>
+
+        <div id="containerMessagerie" style="margin-bottom: 20px;">
+            <div style="background: rgba(255,255,255,0.9); padding: 15px; border-radius: 15px; border-left: 5px solid #1e40af; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <h3 style="margin:0; font-size: 13px; color: #1e40af; font-weight: 800;">
+                        <i class="fas fa-envelope-open-text"></i> JUSTIFICATIONS PARENTS
+                    </h3>
+                    <span id="badgeMessages" style="background:#dc2626; color:white; padding:2px 8px; border-radius:10px; font-size:10px; font-weight: bold; display:none;">0</span>
+                </div>
+                <div id="dernierMessageCadre" style="font-size: 12px; color: #334155; background: #f1f5f9; padding: 10px; border-radius: 10px; cursor: pointer; border: 1px dashed #cbd5e0;" onclick="ouvrirTouteLaMessagerie()">
+                    Aucun message.
+                </div>
+            </div>
+        </div>
+
+        <div id="zoneListe" class="student-list"></div>
+    </div>
+
+    <button id="saveBtn" class="btn-floating" onclick="enregistrerDonnees()">
+        <i class="fas fa-save"></i> ENREGISTRER L'APPEL
+    </button>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyCUtkYNEItc-sI9_IIyfzxVNnpN_gj7UEA",
+        authDomain: "gestion-paiements-ecole.firebaseapp.com",
+        databaseURL: "https://gestion-paiements-ecole-default-rtdb.firebaseio.com",
+        projectId: "gestion-paiements-ecole",
+        storageBucket: "gestion-paiements-ecole.firebasestorage.app",
+        messagingSenderId: "1007469956928",
+        appId: "1:1007469956928:web:ca9b64e500976dc39634a5"
+    };
+
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    const params = new URLSearchParams(window.location.search);
+    let schoolId = params.get('id') || localStorage.getItem('lastSchoolId') || "lyce_excellence"; 
+    localStorage.setItem('lastSchoolId', schoolId);
+
+    const today = new Date().toISOString().split('T')[0];
+    let listeLocale = []; 
+    let historiqueMessagesHTML = ""; 
+function init() {
+    console.log("🚀 Initialisation de la page...");
+    console.log("📍 ID de l'école détecté :", schoolId);
+
+    // Chargement du nom de l'école
+    db.ref(`schools/${schoolId}/info/nom`).on('value', snapshot => {
+        const titreElement = document.getElementById('ecoleTitre');
+        if (snapshot.exists()) {
+            titreElement.innerText = snapshot.val();
+        } else {
+            // Test alternatif si le dossier schools n'existe pas
+            db.ref(`${schoolId}/info/nom`).once('value', s2 => {
+                 if(s2.exists()) titreElement.innerText = s2.val();
+            });
+        }
+    });
+
+    document.getElementById('datePill').innerText = new Date().toLocaleDateString('fr-FR', {
+        day: 'numeric', month: 'long', year: 'numeric'
+    });
+
+    // --- APPEL DE LA MESSAGERIE ---
+    chargerMessagerieSurveillant();
+
+    // Chargement des classes
+    db.ref(`schools/${schoolId}/2025-2026/students`).on('value', snap => {
+        const select = document.getElementById('classeSelect');
+        let classesSet = new Set();
+        if(snap.exists()){
+            snap.forEach(child => {
+                const data = child.val();
+                if(data.classe) classesSet.add(data.classe);
+            });
+            select.innerHTML = '<option value="">-- Choisir la classe --</option>';
+            Array.from(classesSet).sort().forEach(cl => {
+                select.add(new Option(cl, cl));
+            });
+        }
+    });
+}
+ function chargerMessagerieSurveillant() {
+    console.log("📩 Nouvelle tentative avec le préfixe schools/...");
+    
+    // ON RE-AJOUTE "schools/" devant car c'est là que sont tes droits d'accès
+    const cheminMessagerie = `schools/${schoolId}/messages_recus`;
+    console.log("🔗 Nouveau chemin testé :", cheminMessagerie);
+
+    db.ref(cheminMessagerie).on('value', snapshot => {
+        console.log("📊 Données reçues ?", snapshot.exists());
+        
+        const cadre = document.getElementById('dernierMessageCadre');
+        const badge = document.getElementById('badgeMessages');
+        historiqueMessagesHTML = ""; 
+        let nbNonLu = 0;
+
+        if (!snapshot.exists()) {
+            console.warn("⚠️ Aucun message trouvé au chemin :", cheminMessagerie);
+            if(cadre) cadre.innerHTML = "Aucune justification reçue.";
+            return;
+        }
+
+        let dernierMsgData = null;
+        snapshot.forEach(child => {
+            const msg = child.val();
+            const key = child.key;
+            console.log("📨 Message trouvé de :", msg.expediteur);
+            
+            if (msg.statut === "non_lu") nbNonLu++;
+            dernierMsgData = { ...msg, key: key };
+
+          // ... à l'intérieur de snapshot.forEach(child => { ...
+
+historiqueMessagesHTML = `
+    <div style="background: white; padding: 12px; border-radius: 10px; margin-bottom: 10px; border-left: 4px solid ${msg.statut === 'non_lu' ? '#dc2626' : '#94a3b8'}; text-align:left; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <strong style="color:#1e293b; font-size:13px;">${msg.expediteur}</strong>
+            <small style="color:#94a3b8; font-size:10px;">${msg.date}</small>
+        </div>
+        <p style="margin: 5px 0; font-size: 12px; color:#475569;">"${msg.message}"</p>
+        
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+            <button onclick="supprimerMessage('${key}')" style="background:none; border:none; color:#dc2626; cursor:pointer; font-size:14px;" title="Supprimer">
+                <i class="fas fa-trash-alt"></i>
+            </button>
+
+            <div>
+                ${msg.statut === 'non_lu' ? 
+                    `<button onclick="marquerMessageLu('${key}')" style="background:#059669; color:white; border:none; padding:5px 10px; border-radius:6px; font-size:10px; font-weight:bold; cursor:pointer;">MARQUER VU</button>` : 
+                    `<span style="color:#059669; font-size:10px; font-weight:bold;"><i class="fas fa-check-double"></i> CONSULTÉ</span>`
+                }
+            </div>
+        </div>
+    </div>
+` + historiqueMessagesHTML;
+        });
+
+        if(dernierMsgData && cadre) {
+            cadre.innerHTML = `<strong>Dernier :</strong> ${dernierMsgData.expediteur} <i class="fas fa-chevron-right" style="float:right"></i>`;
+        }
+        
+        if (badge) {
+            badge.innerText = nbNonLu;
+            badge.style.display = nbNonLu > 0 ? "inline" : "none";
+        }
+    }, error => {
+        console.error("❌ Erreur Firebase :", error);
+    });
+}
+
+    function ouvrirTouteLaMessagerie() {
+        Swal.fire({
+            title: 'JUSTIFICATIONS',
+            html: `<div style="max-height: 400px; overflow-y: auto; background: #f8fafc; padding: 10px; border-radius: 10px;">${historiqueMessagesHTML}</div>`,
+            showConfirmButton: false,
+            showCloseButton: true,
+            width: '90%'
+        });
+    }
+
+    function marquerMessageLu(key) {
+    // On s'assure d'utiliser le chemin complet avec "schools/"
+    const cheminAction = `schools/${schoolId}/messages_recus/${key}`;
+    
+    console.log("💾 Tentative de marquage lu sur :", cheminAction);
+
+    db.ref(cheminAction).update({ 
+        statut: "lu" 
+    }).then(() => {
+        console.log("✅ Message marqué comme lu avec succès !");
+        Swal.close();
+    }).catch(err => {
+        console.error("❌ Erreur lors de la mise à jour :", err);
+        Swal.fire('Erreur', 'Impossible de modifier le statut.', 'error');
+    });
+}
+function supprimerMessage(key) {
+    Swal.fire({
+        title: 'Supprimer ?',
+        text: "Cette justification sera définitivement effacée.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc2626',
+        cancelButtonColor: '#94a3b8',
+        confirmButtonText: 'Oui, supprimer',
+        cancelButtonText: 'Annuler'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Utilise le même chemin que pour marquer comme lu
+            db.ref(`schools/${schoolId}/messages_recus/${key}`).remove()
+            .then(() => {
+                console.log("✅ Message supprimé");
+                Swal.close(); // Ferme la liste des messages
+                // Optionnel : on peut afficher un petit toast de confirmation
+            })
+            .catch(err => {
+                console.error("❌ Erreur suppression :", err);
+                Swal.fire('Erreur', 'Impossible de supprimer.', 'error');
+            });
+        }
+    });
+}
+
+    function chargerEleves() {
+        const cl = document.getElementById('classeSelect').value;
+        const container = document.getElementById('zoneListe');
+        if(!cl) { 
+            container.innerHTML = ""; 
+            document.getElementById('saveBtn').style.display = "none";
+            return; 
+        }
+        container.innerHTML = `<div class="skeleton"></div><div class="skeleton"></div>`;
+        db.ref(`schools/${schoolId}/2025-2026/students`).orderByChild('classe').equalTo(cl).once('value', snap => {
+            container.innerHTML = "";
+            listeLocale = [];
+            if (!snap.exists()) {
+                container.innerHTML = "<p>Aucun élève.</p>";
+                return;
+            }
+            snap.forEach(child => {
+                const item = child.val();
+                const mat = child.key;
+                listeLocale.push({ matricule: mat, nom: item.nom, status: "Présent" });
+                container.innerHTML += `
+                    <div class="student-row" id="row-${mat}">
+                        <div class="student-info">
+                            <span class="student-name">${item.nom}</span>
+                            <span class="student-mat">${mat}</span>
+                        </div>
+                        <button id="btn-${mat}" class="status-btn btn-present" onclick="changerStatut('${mat}')">PRÉSENT</button>
+                    </div>`;
+            });
+            document.getElementById('saveBtn').style.display = "block";
+        });
+    }
+
+    function changerStatut(mat) {
+        const elv = listeLocale.find(x => x.matricule === mat);
+        const btn = document.getElementById('btn-' + mat);
+        const row = document.getElementById('row-' + mat);
+        if(elv.status === "Présent") {
+            elv.status = "Absent"; btn.innerText = "ABSENT"; btn.className = "status-btn btn-absent"; row.classList.add('is-absent');
+        } else {
+            elv.status = "Présent"; btn.innerText = "PRÉSENT"; btn.className = "status-btn btn-present"; row.classList.remove('is-absent');
+        }
+    }
+
+    function enregistrerDonnees() {
+        const cl = document.getElementById('classeSelect').value;
+        const absents = listeLocale.filter(x => x.status === "Absent");
+        const heureAppel = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        const finalUpdates = {};
+        const updatesEleves = {};
+        if(absents.length > 0) {
+            absents.forEach(a => { updatesEleves[a.matricule] = { nom: a.nom, heure: heureAppel, date: today, statut: "Absent", classe: cl }; });
+        } else {
+            updatesEleves["STATUS_GENERAL"] = { info: "Tous présents", heure: heureAppel, classe: cl };
+        }
+        finalUpdates[`schools/${schoolId}/presences/${today}/${cl}`] = updatesEleves;
+        finalUpdates[`schools/${schoolId}/controle_appels/${today}/${cl}`] = { heure: heureAppel, totalAbsents: absents.length, status: "Effectué" };
+        db.ref().update(finalUpdates).then(() => {
+            Swal.fire({ title: 'Succès !', icon: 'success' }).then(() => { location.reload(); });
+        });
+    }
+
+    init();
+</script>
+</body>
+</html>

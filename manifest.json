@@ -1,0 +1,23 @@
+{
+  "short_name": "EduPay",
+  "name": "EduPay Congo - Portail Parent",
+  "icons": [
+    {
+      "src": "images/logo.jpg",
+      "sizes": "192x192",
+      "type": "image/jpg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "images/logo.jpg",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "start_url": "./parent.html",
+  "background_color": "#1a73e8",
+  "display": "standalone",
+  "scope": "./",
+  "theme_color": "#1a73e8",
+  "description": "Suivi des paiements scolaires et absences en temps réel."
+}
