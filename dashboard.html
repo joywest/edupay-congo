@@ -208,77 +208,76 @@
 
 <div id="modalDepense" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15, 23, 42, 0.9); z-index:9999; align-items:center; justify-content:center; backdrop-filter: blur(5px); padding: 10px;">
     
-    <div class="modal-content-main" style="background:white; width:95%; max-width:1000px; border-radius:24px; display:flex; max-height: 95vh; overflow:hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);">
+    <div class="modal-content-main" style="background:white; width:98%; max-width:1000px; border-radius:24px; display:flex; flex-direction: row; height: 90vh; overflow:hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);">
         
-        <div style="flex:1; padding:25px; background:#fff; display:flex; flex-direction:column; overflow-y:auto;">
-            <h2 style="color:#1e293b; margin-bottom:5px; font-size: 1.5em;">Gestion des Sorties</h2>
-            <p style="color:#64748b; font-size:0.85em; margin-bottom:20px;">Enregistrez chaque franc qui sort de la caisse.</p>
-            
-            <div style="background: linear-gradient(135deg, #1e293b, #334155); padding:15px; border-radius:16px; color:white; margin-bottom:20px;">
-                <span style="font-size:0.75em; opacity:0.8;">DISPONIBILITÉ RÉELLE</span>
-                <div id="soldeInfo" style="font-size:1.6em; font-weight:bold; letter-spacing:-1px;">--- FCFA</div>
-            </div>
-
-            <div style="display:grid; gap:12px;">
-                <div>
-                    <label style="font-size:0.8em; font-weight:bold; color:#475569;">TYPE DE DÉPENSE</label>
-                    <select id="catDepense" style="width:100%; padding:10px; border-radius:10px; border:1px solid #cbd5e1; margin-top:5px; background:#f8fafc;">
-                        <option value="Salaire">👨‍🏫 Salaire Enseignant / Personnel</option>
-                        <option value="Fourniture">📦 Fournitures & Matériel</option>
-                        <option value="Charge">🔌 Charges (SNE, SEE, Loyer)</option>
-                        <option value="Maintenance">🛠 Travaux & Réparations</option>
-                        <option value="Divers">✨ Autres dépenses</option>
-                    </select>
+        <div style="flex:1; padding:25px 35px; background:#fff; display:flex; flex-direction:column; justify-content: space-between;">
+            <div>
+                <h2 style="color:#1e293b; margin-bottom:2px; font-size: 1.4em;">Gestion des Sorties</h2>
+                <p style="color:#64748b; font-size:0.85em; margin-bottom:15px;">Enregistrez chaque franc qui sort de la caisse.</p>
+                
+                <div style="background: linear-gradient(135deg, #1e293b, #334155); padding:15px; border-radius:16px; color:white; margin-bottom:15px;">
+                    <span style="font-size:0.75em; opacity:0.8;">DISPONIBILITÉ RÉELLE</span>
+                    <div id="soldeInfo" style="font-size:1.7em; font-weight:bold; letter-spacing:-1px;">--- FCFA</div>
                 </div>
 
-                <div>
-                    <label style="font-size:0.8em; font-weight:bold; color:#475569;">BÉNÉFICIAIRE OU MOTIF</label>
-                    <div id="conteneurMotif" style="margin-top:5px;">
-                        <input type="text" id="motif" placeholder="Ex: Salaire M. Moussa" style="width:100%; padding:10px; border-radius:10px; border:1px solid #cbd5e1;">
+                <div style="display:grid; gap:12px;">
+                    <div>
+                        <label style="font-size:0.8em; font-weight:bold; color:#475569;">TYPE DE DÉPENSE</label>
+                        <select id="catDepense" style="width:100%; padding:10px; border-radius:10px; border:1px solid #cbd5e1; margin-top:5px; background:#f8fafc;">
+                            <option value="Salaire">👨‍🏫 Salaire Enseignant / Personnel</option>
+                            <option value="Fourniture">📦 Fournitures & Matériel</option>
+                            <option value="Charge">🔌 Charges (SNE, SEE, Loyer)</option>
+                            <option value="Maintenance">🛠 Travaux & Réparations</option>
+                            <option value="Divers">✨ Autres dépenses</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label style="font-size:0.8em; font-weight:bold; color:#475569;">BÉNÉFICIAIRE OU MOTIF</label>
+                        <input type="text" id="motif" placeholder="Ex: Salaire M. Moussa" style="width:100%; padding:10px; border-radius:10px; border:1px solid #cbd5e1; margin-top:5px;">
+                    </div>
+
+                    <div>
+                        <label style="font-size:0.8em; font-weight:bold; color:#475569;">MONTANT (FCFA)</label>
+                        <input type="number" id="montant" placeholder="0" style="width:100%; padding:12px; border-radius:10px; border:2px solid #e2e8f0; margin-top:5px; font-size:1.1em; font-weight:bold; color:#d93025;">
                     </div>
                 </div>
+            </div>
 
-                <div>
-                    <label style="font-size:0.8em; font-weight:bold; color:#475569;">MONTANT (FCFA)</label>
-                    <input type="number" id="montant" placeholder="0" style="width:100%; padding:12px; border-radius:10px; border:2px solid #e2e8f0; margin-top:5px; font-size:1.1em; font-weight:bold; color:#d93025;">
-                </div>
-
-                <div style="display:flex; gap:10px; margin-top:10px; padding-bottom:10px;">
-                    <button onclick="document.getElementById('modalDepense').style.display='none'" style="flex:1; padding:12px; border-radius:12px; border:none; background:#f1f5f9; color:#475569; font-weight:bold; cursor:pointer;">Annuler</button>
-                    <button onclick="validerDepense()" style="flex:2; padding:12px; border-radius:12px; border:none; background:#d93025; color:white; font-weight:bold; cursor:pointer; box-shadow: 0 4px 6px -1px rgba(217, 48, 37, 0.4);">Confirmer le paiement</button>
-                </div>
+            <div style="display:flex; gap:10px; margin-top:15px;">
+                <button onclick="document.getElementById('modalDepense').style.display='none'" style="flex:1; padding:12px; border-radius:12px; border:none; background:#f1f5f9; color:#475569; font-weight:bold; cursor:pointer;">Annuler</button>
+                <button onclick="validerDepense()" style="flex:2; padding:12px; border-radius:12px; border:none; background:#d93025; color:white; font-weight:bold; cursor:pointer; box-shadow: 0 4px 6px -1px rgba(217, 48, 37, 0.4);">Confirmer le paiement</button>
             </div>
         </div>
 
-        <div style="flex:1.1; padding:25px; background:#f8fafc; display:flex; flex-direction:column; border-left: 1px solid #e2e8f0;">
+        <div style="flex:1.2; padding:30px; background:#f8fafc; display:flex; flex-direction:column; border-left: 1px solid #e2e8f0;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <h3 style="color:#1e293b; margin:0; font-size:1.1em;">Dernières opérations</h3>
-                <button onclick="ouvrirModalAjoutProf()" style="background:#10b981; color:white; border:none; padding:6px 12px; border-radius:10px; cursor:pointer; font-weight:bold; font-size:0.75em; display:flex; align-items:center; gap:5px;">
-                    <span style="font-size:1.1em;">+</span> Ajouter
+                <h3 style="color:#1e293b; margin:0; font-size: 1.1em;">Dernières opérations</h3>
+                <button onclick="ouvrirModalAjoutProf()" style="background:#10b981; color:white; border:none; padding:8px 15px; border-radius:10px; cursor:pointer; font-weight:bold; font-size:0.8em;">
+                    + Ajouter un prof
                 </button>
             </div>
             
             <div id="statsDepenses" style="display:flex; gap:10px; margin-bottom:15px;">
-                <div style="flex:1; background:white; padding:10px; border-radius:10px; border:1px solid #e2e8f0; font-size:0.75em;">
-                    <span style="color:#64748b;">Salaires</span><br>
+                <div style="flex:1; background:white; padding:10px; border-radius:10px; border:1px solid #e2e8f0; font-size:0.8em;">
+                    <span style="color:#64748b;">Salaires versés</span><br>
                     <strong id="totalSalairesModal" style="color:#1e293b;">0 FCFA</strong>
                 </div>
-                <div style="flex:1; background:white; padding:10px; border-radius:10px; border:1px solid #e2e8f0; font-size:0.75em;">
-                    <span style="color:#64748b;">Autres</span><br>
+                <div style="flex:1; background:white; padding:10px; border-radius:10px; border:1px solid #e2e8f0; font-size:0.8em;">
+                    <span style="color:#64748b;">Autres frais</span><br>
                     <strong id="totalAutresModal" style="color:#1e293b;">0 FCFA</strong>
                 </div>
             </div>
 
-            <button onclick="ouvrirListeProfesseurs()" style="width:100%; background:#4f46e5; color:white; border:none; padding:10px; border-radius:12px; font-weight:bold; cursor:pointer; margin-bottom:15px; font-size:0.85em;">
+            <button onclick="ouvrirListeProfesseurs()" style="width:100%; background:#4f46e5; color:white; border:none; padding:12px; border-radius:12px; font-weight:bold; cursor:pointer; margin-bottom:15px; font-size: 0.9em;">
                 📋 Gérer le Pointage & Salaires
             </button>
 
-            <div id="historiqueDepensesModal" style="flex:1; overflow-y:auto;">
+            <div id="historiqueDepensesModal" style="flex:1; overflow-y:auto; padding-right:5px;">
                 </div>
         </div>
     </div>
 </div>
-
 <div id="modalAddProf" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:10000; justify-content:center; align-items:center; backdrop-filter: blur(4px);">
     <div style="background:white; width:90%; max-width:400px; border-radius:20px; padding:30px; box-shadow:0 20px 25px -5px rgba(0,0,0,0.1);">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
@@ -432,5 +431,6 @@
 </html>
 
     
+
 
 
